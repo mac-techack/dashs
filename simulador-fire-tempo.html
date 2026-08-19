@@ -177,7 +177,26 @@ function fireInfo(pts,t1,t2){
   return{txt:fmtDate(dateAt(idx)),sub:via,idx};
 }
 
-let chart;
+let chart, refT1=0, refT2=0;
+const refsPlugin={
+  id:'refs',
+  afterDraw(ch){
+    const{ctx,chartArea:a,scales}=ch;
+    const hline=(y,color,txt)=>{const py=scales.y.getPixelForValue(y);
+      if(py<a.top||py>a.bottom)return;
+      ctx.save();ctx.strokeStyle=color;ctx.setLineDash([5,4]);ctx.lineWidth=1.3;
+      ctx.beginPath();ctx.moveTo(a.left,py);ctx.lineTo(a.right,py);ctx.stroke();
+      ctx.setLineDash([]);ctx.fillStyle=color;ctx.font='600 11px '+getComputedStyle(document.body).fontFamily;
+      ctx.textAlign='left';ctx.fillText(txt,a.left+6,py-5);ctx.restore();};
+    hline(refT1,'#F2B84B','Fase 1 · '+milBRL(refT1));
+    hline(refT2,'#6BA8F0','Fase 2 · '+milBRL(refT2));
+    const px=scales.x.getPixelForValue(stepIdx);
+    if(px>=a.left&&px<=a.right){ctx.save();ctx.strokeStyle='#93A0AD';ctx.setLineDash([3,4]);
+      ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(px,a.top);ctx.lineTo(px,a.bottom);ctx.stroke();
+      ctx.setLineDash([]);ctx.fillStyle='#93A0AD';ctx.font='600 10px '+getComputedStyle(document.body).fontFamily;
+      ctx.textAlign='center';ctx.fillText('step-down',px,a.top-3);ctx.restore();}
+  }
+};
 function render(){
   const cur=+$('cur').value, ap=+$('ap').value, va=+$('va').value,
         sf=+$('sf').value, ss=+$('ss').value, swr=+$('swr').value, fx=+$('fx').value,
@@ -214,57 +233,41 @@ function render(){
     : 'Ajuste os aportes ou a cobertura: nenhum cenário atinge o alvo no horizonte.';
 
   // chart
+  refT1=t1; refT2=t2;                                   // targets lidos pelo plugin a cada draw
   const labels=[...Array(HORIZON+1).keys()];
-  const ds=(data,color,label)=>({label,data,borderColor:color,borderWidth:2.4,
-    pointRadius:0,tension:.25,fill:false});
-  const cfg={
-    type:'line',
-    data:{labels,datasets:[
-      ds(pS,'#F07A6E','Stress '+rs+'%'),
-      ds(pB,'#F2B84B','Base '+rb+'%'),
-      ds(pU,'#43D690','Upside '+ru+'%'),
-    ]},
-    options:{
-      responsive:true,maintainAspectRatio:false,animation:{duration:250},
-      interaction:{mode:'index',intersect:false},
-      scales:{
-        x:{type:'linear',min:0,max:HORIZON,grid:{color:'#2A3644'},
-          ticks:{color:'#5E6B78',font:{size:11},maxRotation:0,
-            callback:v=>{const d=dateAt(v);return d.getMonth()===0?"'"+String(d.getFullYear()).slice(2):'';}}},
-        y:{grid:{color:'#2A3644'},ticks:{color:'#5E6B78',font:{size:11},
-          callback:v=>'R$'+(v/1e6).toFixed(1)+'M'}}
+  const dsData=[pS,pB,pU];
+  const dsLabel=['Stress '+rs+'%','Base '+rb+'%','Upside '+ru+'%'];
+  const dsColor=['#F07A6E','#F2B84B','#43D690'];
+  if(chart){
+    chart.data.labels=labels;
+    for(let i=0;i<3;i++){chart.data.datasets[i].data=dsData[i];chart.data.datasets[i].label=dsLabel[i];}
+    chart.update();
+  } else {
+    chart=new Chart($('chart'),{
+      type:'line',
+      data:{labels,datasets:dsData.map((d,i)=>({label:dsLabel[i],data:d,
+        borderColor:dsColor[i],borderWidth:2.4,pointRadius:0,tension:.25,fill:false}))},
+      options:{
+        responsive:true,maintainAspectRatio:false,animation:{duration:250},
+        interaction:{mode:'index',intersect:false},
+        scales:{
+          x:{type:'linear',min:0,max:HORIZON,grid:{color:'#2A3644'},
+            ticks:{color:'#5E6B78',font:{size:11},maxRotation:0,
+              callback:v=>{const d=dateAt(v);return d.getMonth()===0?"'"+String(d.getFullYear()).slice(2):'';}}},
+          y:{grid:{color:'#2A3644'},ticks:{color:'#5E6B78',font:{size:11},
+            callback:v=>'R$'+(v/1e6).toFixed(1)+'M'}}
+        },
+        plugins:{
+          legend:{labels:{color:'#93A0AD',boxWidth:14,font:{size:11.5}}},
+          tooltip:{backgroundColor:'#1E2733',borderColor:'#2A3644',borderWidth:1,
+            titleColor:'#E7ECF0',bodyColor:'#E7ECF0',
+            callbacks:{title:it=>fmtDate(dateAt(it[0].parsed.x)),
+              label:it=>it.dataset.label.split(' ')[0]+': '+milBRL(it.parsed.y)}}
+        }
       },
-      plugins:{
-        legend:{labels:{color:'#93A0AD',boxWidth:14,font:{size:11.5}}},
-        tooltip:{backgroundColor:'#1E2733',borderColor:'#2A3644',borderWidth:1,
-          titleColor:'#E7ECF0',bodyColor:'#E7ECF0',
-          callbacks:{title:it=>fmtDate(dateAt(it[0].parsed.x)),
-            label:it=>it.dataset.label.split(' ')[0]+': '+milBRL(it.parsed.y)}}
-      }
-    },
-    plugins:[{
-      id:'refs',
-      afterDraw(ch){
-        const{ctx,chartArea:a,scales}=ch;
-        const hline=(y,color,txt)=>{const py=scales.y.getPixelForValue(y);
-          if(py<a.top||py>a.bottom)return;
-          ctx.save();ctx.strokeStyle=color;ctx.setLineDash([5,4]);ctx.lineWidth=1.3;
-          ctx.beginPath();ctx.moveTo(a.left,py);ctx.lineTo(a.right,py);ctx.stroke();
-          ctx.setLineDash([]);ctx.fillStyle=color;ctx.font='600 11px '+getComputedStyle(document.body).fontFamily;
-          ctx.textAlign='left';ctx.fillText(txt,a.left+6,py-5);ctx.restore();};
-        hline(t1,'#F2B84B','Fase 1 · '+milBRL(t1));
-        hline(t2,'#6BA8F0','Fase 2 · '+milBRL(t2));
-        // vertical mai/2032
-        const px=scales.x.getPixelForValue(stepIdx);
-        if(px>=a.left&&px<=a.right){ctx.save();ctx.strokeStyle='#93A0AD';ctx.setLineDash([3,4]);
-          ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(px,a.top);ctx.lineTo(px,a.bottom);ctx.stroke();
-          ctx.setLineDash([]);ctx.fillStyle='#93A0AD';ctx.font='600 10px '+getComputedStyle(document.body).fontFamily;
-          ctx.textAlign='center';ctx.fillText('step-down',px,a.top-3);ctx.restore();}
-      }
-    }]
-  };
-  if(chart){chart.data=cfg.data;chart.options=cfg.options;chart.update();}
-  else chart=new Chart($('chart'),cfg);
+      plugins:[refsPlugin]
+    });
+  }
 
   $('foot').textContent='O alvo da Fase 1 trata o gap da faculdade como perpétuo (conservador — na prática dura ~6 anos). '
     +'Aportes seguem enquanto você trabalha; a retirada só incide sobre o gap não coberto pela Vanessa. '
