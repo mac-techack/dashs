@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meus Dashboards</title>
+  <style>
+    :root {
+      --artifact-background: #ffffff;
+      --artifact-background-light: #f1f3f6;
+      --artifact-background-mid: #e9ecf1;
+      --artifact-border-light: #e3e6ec;
+      --artifact-border-dark: #cdd2db;
+      --artifact-primary-brand: #3559e6;
+      --artifact-primary-highlight: #0d0f14;
+      --artifact-primary-hover: #2442b8;
+      --artifact-selected: #eaeefc;
+      --artifact-text-primary: #11141a;
+      --artifact-text-secondary: #5c6470;
+      --artifact-text-highlight: #e8eefc;
+      --artifact-positive: #159a6a;
+      --artifact-negative: #dc4c4c;
+    }
+    html[data-theme='dark'] {
+      --artifact-background: #0a0b0e;
+      --artifact-background-light: #121419;
+      --artifact-background-mid: #181b22;
+      --artifact-border-light: #23262e;
+      --artifact-border-dark: #343844;
+      --artifact-primary-brand: #6a92ff;
+      --artifact-primary-highlight: #f5f7fb;
+      --artifact-primary-hover: #88a8ff;
+      --artifact-selected: #1a2030;
+      --artifact-text-primary: #eef0f4;
+      --artifact-text-secondary: #9aa0ad;
+      --artifact-text-highlight: #14213d;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--artifact-background);
+      color: var(--artifact-text-primary);
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--artifact-border-light);
+      padding: 48px 32px 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .eyebrow {
+      font-family: "SF Mono", "IBM Plex Mono", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--artifact-primary-brand);
+      margin-bottom: 12px;
+    }
+    header h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 300;
+      letter-spacing: -0.025em;
+      line-height: 1.05;
+      color: var(--artifact-text-primary);
+    }
+    header p {
+      margin-top: 12px;
+      color: var(--artifact-text-secondary);
+      font-size: 15px;
+      max-width: 520px;
+    }
+
+    /* ── Grid ── */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 32px 80px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--artifact-background-light);
+      border: 1px solid var(--artifact-border-light);
+      border-radius: 8px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color 0.18s, background 0.18s;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+    }
+    .card:hover {
+      border-color: var(--artifact-primary-brand);
+      background: var(--artifact-selected);
+    }
+    .card-icon {
+      font-size: 28px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .card-tag {
+      font-family: "SF Mono", "IBM Plex Mono", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--artifact-text-secondary);
+    }
+    .card h2 {
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--artifact-text-primary);
+      line-height: 1.3;
+    }
+    .card p {
+      font-size: 14px;
+      color: var(--artifact-text-secondary);
+      line-height: 1.55;
+      flex: 1;
+    }
+    .card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--artifact-primary-brand);
+      margin-top: 4px;
+      letter-spacing: -0.005em;
+    }
+    .card:hover .card-link {
+      color: var(--artifact-primary-hover);
+    }
+    .card-link svg {
+      transition: transform 0.15s;
+    }
+    .card:hover .card-link svg {
+      transform: translateX(3px);
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--artifact-border-light);
+      text-align: center;
+      padding: 24px 32px;
+      font-size: 12px;
+      color: var(--artifact-text-secondary);
+      font-family: "SF Mono", "IBM Plex Mono", Consolas, monospace;
+      letter-spacing: 0.05em;
+    }
+
+    @media (max-width: 600px) {
+      header, main { padding-left: 20px; padding-right: 20px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .card { break-inside: avoid; box-shadow: none; }
+      footer { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Hub de Conteúdo</div>
+  <h1>Meus Dashboards</h1>
+  <p>Coleção de dashboards, simuladores e painéis interativos. Clique em qualquer card para abrir.</p>
+</header>
+
+<main>
+  <div class="grid">
+
+    <a class="card" href="criptografia_hash_one_pager.html" target="_blank">
+      <div class="card-icon">🔐</div>
+      <div class="card-tag">Tecnologia · One Pager</div>
+      <h2>Criptografia &amp; Hash</h2>
+      <p>Resumo visual sobre conceitos de criptografia e funções hash — ideal para consulta rápida.</p>
+      <span class="card-link">Abrir <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+    </a>
+
+    <a class="card" href="historia_ia_timeline.html" target="_blank">
+      <div class="card-icon">🤖</div>
+      <div class="card-tag">Inteligência Artificial · Timeline</div>
+      <h2>História da IA</h2>
+      <p>Linha do tempo interativa com os principais marcos e eventos da Inteligência Artificial.</p>
+      <span class="card-link">Abrir <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+    </a>
+
+    <a class="card" href="painel_dominancia_fiscal%20(1).html" target="_blank">
+      <div class="card-icon">📊</div>
+      <div class="card-tag">Economia · Painel</div>
+      <h2>Dominância Fiscal</h2>
+      <p>Painel de análise sobre dominância fiscal e seus efeitos na política monetária brasileira.</p>
+      <span class="card-link">Abrir <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+    </a>
+
+    <a class="card" href="selic_bolsa_investidores_dashboard.html" target="_blank">
+      <div class="card-icon">📈</div>
+      <div class="card-tag">Investimentos · Dashboard</div>
+      <h2>SELIC &amp; Bolsa — Investidores</h2>
+      <p>Dashboard com dados de SELIC, bolsa de valores e indicadores relevantes para investidores.</p>
+      <span class="card-link">Abrir <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+    </a>
+
+    <a class="card" href="simulador-fire-tempo.html" target="_blank">
+      <div class="card-icon">🔥</div>
+      <div class="card-tag">Finanças Pessoais · Simulador</div>
+      <h2>Simulador FIRE</h2>
+      <p>Calcule seu tempo para a independência financeira com base na metodologia FIRE.</p>
+      <span class="card-link">Abrir <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+    </a>
+
+    <a class="card" href="simulador-moradia-v3.html" target="_blank">
+      <div class="card-icon">🏠</div>
+      <div class="card-tag">Finanças Pessoais · Simulador</div>
+      <h2>Simulador de Moradia</h2>
+      <p>Compare cenários de aluguel versus compra e simule custos de moradia a longo prazo.</p>
+      <span class="card-link">Abrir <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+    </a>
+
+  </div>
+</main>
+
+<footer>
+  6 documentos · atualizado via GitHub Pages
+</footer>
+
+<script>
+  window.GleanBridge.postMessage({
+    actionId: 'export-pdf',
+    type: 'glean-add-menu',
+    metadata: { label: 'Export as PDF', icon: 'export' }
+  });
+  window.GleanBridge.onMessage('action', function(data) {
+    if (data.actionId === 'export-pdf') window.print();
+  });
+</script>
+
+</body>
+</html>
