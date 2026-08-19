@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador v3 · Alugar SP × Comprar Indaiá · FGTS e demissão</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#10141F; --panel:#171D2C; --border:#252C3D; --txt:#E8ECF4; --mut:#8B94A8; --dim:#5B6478;
+    --verde:#2FBF8F; --azul:#4E9AF1; --ambar:#E8A33D; --coral:#E06456;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:'IBM Plex Sans',system-ui,sans-serif;padding:20px 16px 48px}
+  .wrap{max-width:900px;margin:0 auto}
+  .tag{font-size:11px;color:var(--verde);letter-spacing:.14em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace}
+  h1{font-size:22px;font-weight:600;margin:6px 0 2px}
+  .sub{font-size:12.5px;color:var(--mut);line-height:1.5}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px;margin:20px 0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 24px}
+  .slider-label{display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px;color:var(--mut);letter-spacing:.04em}
+  .slider-val{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--txt)}
+  input[type=range]{width:100%;height:4px;cursor:pointer}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin:20px 0}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 16px;position:relative}
+  .card.best{background:#14251F}
+  .card h3{font-size:13px;font-weight:600;margin:0 0 6px}
+  .big{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600}
+  .small{font-size:11.5px;color:var(--mut);line-height:1.7}
+  .mono{font-family:'IBM Plex Mono',monospace}
+  .badge{position:absolute;top:10px;right:12px;font-size:10px;font-family:'IBM Plex Mono',monospace;letter-spacing:.08em}
+  .delta{font-size:12.5px;color:var(--mut);margin:-8px 2px 16px}
+  .tl-title{font-size:11px;color:var(--mut);letter-spacing:.08em;text-transform:uppercase;margin-bottom:30px}
+  #timeline{position:relative;height:100px}
+  .rail{position:absolute;top:60px;left:0;right:0;height:2px;background:var(--border)}
+  .tick{position:absolute;top:56px}
+  .tick div:first-child{width:1px;height:10px;background:#3A4258}
+  .tick div:last-child{font-size:10px;color:var(--dim);font-family:'IBM Plex Mono',monospace;transform:translateX(-50%);margin-top:3px}
+  .step-line{position:absolute;top:8px;bottom:24px;border-left:1px dashed var(--coral)}
+  .step-label{position:absolute;top:-20px;transform:translateX(4px);font-size:10px;color:var(--coral);font-family:'IBM Plex Mono',monospace;line-height:1.3;white-space:nowrap}
+  .layoff-line{position:absolute;top:24px;bottom:24px;border-left:1px dashed var(--ambar)}
+  .layoff-label{position:absolute;top:6px;transform:translateX(4px);font-size:10px;color:var(--ambar);font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+  .dot{position:absolute;top:54px;transform:translateX(-50%);width:12px;height:12px;border-radius:50%;border:2px solid var(--bg)}
+  .dot-label{position:absolute;left:50%;transform:translateX(-50%);font-size:10px;white-space:nowrap;font-family:'IBM Plex Mono',monospace}
+  .foot{font-size:11px;color:var(--dim);margin-top:14px;line-height:1.6}
+  canvas{max-height:320px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tag">Simulador v3 · Nominal · FGTS na entrada · Timing da demissão</div>
+  <h1>Alugar SP × Comprar Indaiá</h1>
+  <div class="sub">Aporte fixo R$ 20,5k/mês (sobras consumidas) · FGTS de R$ 260k rende 4% a.a. até a demissão, depois migra para a carteira · metas: aluguel 7,5M→4,5M · compra 4,86M→2,24M + saldo devedor · degrau em mai/2032</div>
+
+  <div class="panel grid">
+    <div>
+      <div class="slider-label"><span>RETORNO DA CARTEIRA (a.a.)</span><span class="slider-val" id="v-r" style="color:var(--verde)"></span></div>
+      <input type="range" id="s-r" min="10" max="22" step="0.5" value="15" style="accent-color:var(--verde)">
+    </div>
+    <div>
+      <div class="slider-label"><span>ENTRADA NA CASA (2,2M = à vista)</span><span class="slider-val" id="v-e" style="color:var(--verde)"></span></div>
+      <input type="range" id="s-e" min="200000" max="2200000" step="100000" value="1000000" style="accent-color:var(--verde)">
+    </div>
+    <div>
+      <div class="slider-label"><span>FGTS USADO NA ENTRADA</span><span class="slider-val" id="v-g" style="color:var(--ambar)"></span></div>
+      <input type="range" id="s-g" min="0" max="260000" step="10000" value="260000" style="accent-color:var(--ambar)">
+    </div>
+    <div>
+      <div class="slider-label"><span>DEMISSÃO ESPERADA</span><span class="slider-val" id="v-l" style="color:var(--ambar)"></span></div>
+      <input type="range" id="s-l" min="1" max="113" step="1" value="24" style="accent-color:var(--ambar)">
+    </div>
+    <div>
+      <div class="slider-label"><span>TAXA DO FINANCIAMENTO (a.a.)</span><span class="slider-val" id="v-f" style="color:var(--ambar)"></span></div>
+      <input type="range" id="s-f" min="9" max="13" step="0.01" value="11.19" style="accent-color:var(--ambar)">
+    </div>
+    <div>
+      <div class="slider-label"><span>VALORIZAÇÃO DA CASA (a.a.)</span><span class="slider-val" id="v-a" style="color:var(--coral)"></span></div>
+      <input type="range" id="s-a" min="3" max="8" step="0.25" value="5" style="accent-color:var(--coral)">
+    </div>
+    <div class="small" id="fin-info" style="align-self:center;grid-column:1/-1"></div>
+  </div>
+
+  <div class="cards">
+    <div class="card" id="card-alug">
+      <div class="badge" id="badge-alug" style="color:var(--azul);display:none">▲ MAIOR PATRIMÔNIO</div>
+      <h3 style="color:var(--azul)">Alugar SP</h3>
+      <div class="big" id="tot-alug"></div>
+      <div class="small">patrimônio dez/2035</div>
+      <div class="small" id="det-alug"></div>
+    </div>
+    <div class="card" id="card-comp">
+      <div class="badge" id="badge-comp" style="color:var(--verde);display:none">▲ MAIOR PATRIMÔNIO</div>
+      <h3 style="color:var(--verde)">Comprar Indaiá</h3>
+      <div class="big" id="tot-comp"></div>
+      <div class="small">patrimônio dez/2035</div>
+      <div class="small" id="det-comp"></div>
+    </div>
+  </div>
+
+  <div class="delta" id="delta-fire"></div>
+
+  <div class="panel">
+    <div class="tl-title">Quando cada cenário cruza sua própria meta</div>
+    <div id="timeline"></div>
+  </div>
+
+  <div class="panel">
+    <div class="tl-title" style="margin-bottom:10px">Patrimônio total nominal (R$ milhões)</div>
+    <canvas id="chart"></canvas>
+  </div>
+
+  <div class="foot">
+    Modelo: nominal; aporte fixo de R$ 20.536/mês nos dois cenários (aluguel/parcela pagos da renda); FGTS inicial de R$ 260k rende 4% a.a.
+    (3% + TR + lucros) e migra para a carteira no mês da demissão — a multa de 40% incide sobre todos os depósitos do vínculo e não muda
+    entre cenários, por isso foi excluída; entrada + 4% de custos (ITBI/cartório, pagos da carteira); SAC 360m; FIRE da compra exige
+    patrimônio financeiro ≥ meta + saldo devedor (quitação no dia). Uso do FGTS na compra: SFH com teto de R$ 2,25M (regra de out–nov/2025),
+    exige 3 anos de FGTS, imóvel residencial urbano para moradia própria, sem outro imóvel na cidade nem financiamento SFH ativo.
+    Não inclui MIP/DFI nem o drag fiscal da Lei 14.754 num FIRE no Brasil. Simplificação: o aporte mensal segue integral após a demissão.
+  </div>
+</div>
+
+<script>
+// ---------- Constantes ----------
+const CARTEIRA = 2823965, IMOVEL = 2200000, CUSTOS_PCT = 0.04, APORTE = 20536;
+const FGTS0 = 260000, FGTS_R = 0.04;
+const FIN_MESES = 360, MES_STEP = 70, HORIZONTE = 113, MAX = 240;
+const META_ALUG = {antes: 7500000, depois: 4500000};
+const META_COMP = {antes: 4860000, depois: 2240000};
+const MESES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const mesLabel = m => { const d = new Date(2026, 6+m); return MESES[d.getMonth()] + "/" + d.getFullYear(); };
+const fmtMi = v => "R$ " + (v/1e6).toFixed(2).replace(".", ",") + "M";
+const fmtK = v => "R$ " + (v/1000).toFixed(0) + "k";
+
+// ---------- Motor ----------
+function simular(r, entrada, finRate, appr, fgtsUso, layoffM) {
+  fgtsUso = Math.min(fgtsUso, entrada, FGTS0);
+  const i = Math.pow(1+r/100, 1/12) - 1;
+  const iG = Math.pow(1+FGTS_R, 1/12) - 1;
+  const iFin = Math.pow(1+finRate/100, 1/12) - 1;
+  const financiado = Math.max(0, IMOVEL - entrada);
+  const amort = financiado > 0 ? financiado/FIN_MESES : 0;
+  const custos = IMOVEL*CUSTOS_PCT;
+
+  // carteiras líquidas (sem FGTS) + potes de FGTS separados
+  let pA = CARTEIRA - FGTS0;
+  let gA = FGTS0;
+  let pC = CARTEIRA - FGTS0 - (entrada - fgtsUso) - custos;
+  let gC = FGTS0 - fgtsUso;
+  let saldo = financiado;
+
+  const fire = {alug: null, comp: null};
+  const serie = {labels: [], alug: [], comp: []};
+  let res = null, parc113 = 0;
+  const parcIni = amort + financiado*iFin;
+
+  for (let m = 1; m <= MAX; m++) {
+    const parcela = saldo > 0 ? amort + saldo*iFin : 0;
+    saldo = Math.max(0, saldo - amort);
+    pA = pA*(1+i) + APORTE;
+    pC = pC*(1+i) + APORTE;
+    gA *= (1+iG); gC *= (1+iG);
+    if (m === layoffM) { pA += gA; gA = 0; pC += gC; gC = 0; } // demissão libera FGTS
+
+    const wA = pA + gA, wC = pC + gC; // patrimônio financeiro total
+    const pre = m < MES_STEP;
+    const mA = pre ? META_ALUG.antes : META_ALUG.depois;
+    const mC = (pre ? META_COMP.antes : META_COMP.depois) + saldo;
+    if (!fire.alug && wA >= mA) fire.alug = {m, p: wA, meta: mA};
+    if (!fire.comp && wC >= mC) fire.comp = {m, p: wC, meta: mC};
+
+    const casa = IMOVEL * Math.pow(1+appr/100, m/12);
+    if (m <= HORIZONTE && (m % 12 === 6 || m === HORIZONTE)) {
+      serie.labels.push(mesLabel(m));
+      serie.alug.push(wA/1e6);
+      serie.comp.push((wC + casa - saldo)/1e6);
+    }
+    if (m === HORIZONTE) { res = {alug: wA, cart: wC, casa, saldo, total: wC + casa - saldo}; parc113 = parcela; }
+  }
+  return {fire, serie, res, financiado, parcIni, parc113, fgtsUso,
+          entradaCarteira: entrada - fgtsUso,
+          restante: CARTEIRA - FGTS0 - (entrada - fgtsUso) - custos + (FGTS0 - fgtsUso)};
+}
+
+// ---------- UI ----------
+const $ = id => document.getElementById(id);
+let chart = null;
+
+function render() {
+  const r = parseFloat($("s-r").value), e = parseFloat($("s-e").value);
+  const f = parseFloat($("s-f").value), a = parseFloat($("s-a").value);
+  const g = parseFloat($("s-g").value), l = parseInt($("s-l").value);
+  const im = ((Math.pow(1+r/100,1/12)-1)*100).toFixed(3).replace(".", ",");
+  $("v-r").textContent = r.toFixed(1).replace(".",",") + "% · " + im + "% a.m.";
+  $("v-e").textContent = fmtMi(e);
+  $("v-f").textContent = f.toFixed(2).replace(".",",") + "%";
+  $("v-a").textContent = a.toFixed(2).replace(".",",") + "%";
+  $("v-g").textContent = fmtK(Math.min(g, e));
+  $("v-l").textContent = mesLabel(l);
+
+  const s = simular(r, e, f, a, g, l);
+
+  $("fin-info").innerHTML =
+    `Entrada: <span class="mono" style="color:var(--txt)">${fmtMi(e)}</span> ` +
+    `(<span class="mono" style="color:var(--ambar)">${fmtK(s.fgtsUso)}</span> do FGTS + ` +
+    `<span class="mono" style="color:var(--txt)">${fmtMi(s.entradaCarteira)}</span> da carteira) · ` +
+    (s.financiado === 0
+      ? `à vista, sem financiamento`
+      : `financia <span class="mono" style="color:var(--txt)">${fmtMi(s.financiado)}</span> · SAC 360m · parcela <span class="mono" style="color:var(--ambar)">${fmtK(s.parcIni)}</span> → <span class="mono" style="color:var(--ambar)">${fmtK(s.parc113)}</span> (dez/35)`);
+
+  $("tot-alug").textContent = fmtMi(s.res.alug);
+  $("tot-comp").textContent = fmtMi(s.res.total);
+  $("det-alug").innerHTML = fireTxt(s.fire.alug, "var(--azul)");
+  $("det-comp").innerHTML =
+    `Carteira ${fmtMi(s.res.cart)} · casa ${fmtMi(s.res.casa)}` +
+    (s.res.saldo > 0 ? ` · dívida −${fmtMi(s.res.saldo)}` : "") + "<br>" + fireTxt(s.fire.comp, "var(--verde)");
+
+  const alugBest = s.res.alug >= s.res.total;
+  $("badge-alug").style.display = alugBest ? "block" : "none";
+  $("badge-comp").style.display = alugBest ? "none" : "block";
+  $("card-alug").className = "card" + (alugBest ? " best" : "");
+  $("card-alug").style.borderColor = alugBest ? "var(--azul)" : "var(--border)";
+  $("card-comp").className = "card" + (!alugBest ? " best" : "");
+  $("card-comp").style.borderColor = !alugBest ? "var(--verde)" : "var(--border)";
+
+  const dPat = s.res.alug - s.res.total;
+  let txt = dPat >= 0
+    ? `Alugar acumula ${fmtMi(dPat)} a mais até dez/2035. `
+    : `Comprar acumula ${fmtMi(-dPat)} a mais até dez/2035. `;
+  if (s.fire.alug && s.fire.comp) {
+    const d = s.fire.comp.m - s.fire.alug.m;
+    txt += d > 0 ? `Comprar atrasa o FIRE em ${d} ${d===1?"mês":"meses"}.`
+      : d < 0 ? `Comprar antecipa o FIRE em ${-d} meses.` : `A data do FIRE não muda.`;
+  }
+  $("delta-fire").textContent = txt;
+
+  renderTimeline(s.fire, l);
+  renderChart(s.serie);
+}
+
+function fireTxt(fr, cor) {
+  return fr
+    ? `FIRE: <span class="mono" style="color:${cor};font-weight:600">${mesLabel(fr.m)}</span> · patrimônio fin. ${fmtMi(fr.p)} vs meta ${fmtMi(fr.meta)}`
+    : `FIRE: <span class="mono" style="color:var(--coral)">não atinge em 20 anos</span>`;
+}
+
+function renderTimeline(fire, layoffM) {
+  const tl = $("timeline"), span = 132;
+  const pos = m => Math.min(100, m/span*100) + "%";
+  let html = `<div class="rail"></div>`;
+  [6,30,54,78,102,126].forEach((m, idx) => {
+    html += `<div class="tick" style="left:${pos(m)}"><div></div><div>${2027+idx*2}</div></div>`;
+  });
+  html += `<div class="step-line" style="left:${pos(MES_STEP)}"></div>`;
+  html += `<div class="step-label" style="left:${pos(MES_STEP)}">mai/2032 · metas caem</div>`;
+  html += `<div class="layoff-line" style="left:${pos(layoffM)}"></div>`;
+  html += `<div class="layoff-label" style="left:${pos(layoffM)}">demissão · FGTS → carteira</div>`;
+  const cores = {alug: "var(--azul)", comp: "var(--verde)"};
+  Object.keys(fire).forEach((k, idx) => {
+    const fr = fire[k];
+    if (!fr) return;
+    html += `<div class="dot" style="left:${pos(fr.m)};background:${cores[k]};box-shadow:0 0 0 1px ${cores[k]}">
+      <div class="dot-label" style="top:${idx%2===0?-30:18}px;color:${cores[k]}">${mesLabel(fr.m)}</div></div>`;
+  });
+  tl.innerHTML = html;
+}
+
+function renderChart(serie) {
+  const data = {
+    labels: serie.labels,
+    datasets: [
+      {label: "Alugar SP", data: serie.alug, borderColor: "#4E9AF1", borderWidth: 2.5, pointRadius: 0, tension: .3},
+      {label: "Comprar Indaiá", data: serie.comp, borderColor: "#2FBF8F", borderWidth: 2.5, pointRadius: 0, tension: .3},
+    ],
+  };
+  if (chart) { chart.data = data; chart.update("none"); return; }
+  chart = new Chart($("chart"), {
+    type: "line", data,
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      interaction: {mode: "index", intersect: false},
+      plugins: {
+        legend: {labels: {color: "#8B94A8", font: {family: "IBM Plex Sans", size: 12}}},
+        tooltip: {
+          backgroundColor: "#10141F", borderColor: "#252C3D", borderWidth: 1,
+          callbacks: {label: c => c.dataset.label + ": R$ " + c.parsed.y.toFixed(2).replace(".", ",") + "M"},
+        },
+      },
+      scales: {
+        x: {ticks: {color: "#5B6478", font: {family: "IBM Plex Mono", size: 10}}, grid: {color: "#252C3D"}},
+        y: {min: 0, ticks: {color: "#5B6478", font: {family: "IBM Plex Mono", size: 10}, callback: v => v + "M"}, grid: {color: "#252C3D"}},
+      },
+    },
+  });
+}
+
+["s-r","s-e","s-f","s-a","s-g","s-l"].forEach(id => $(id).addEventListener("input", render));
+render();
+</script>
+</body>
+</html>

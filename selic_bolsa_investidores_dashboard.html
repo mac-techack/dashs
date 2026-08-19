@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SELIC x Bolsa x Investidores — Panorama e Simulador</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --artifact-background: var(--theme-background, #ffffff);
+    --artifact-background-light: var(--theme-background-light, #f6f6f6);
+    --artifact-background-mid: var(--theme-background-mid, #f0f0f0);
+    --artifact-border-light: var(--theme-border-light, #e5e5e5);
+    --artifact-border-dark: var(--theme-border-dark, #cccccc);
+    --artifact-primary-highlight: var(--theme-primary-highlight, #1b1b1b);
+    --artifact-primary-hover: var(--theme-primary-hover, #404040);
+    --artifact-selected: var(--theme-selected, #e8e8e8);
+    --artifact-text-primary: var(--theme-text-primary, #1b1b1b);
+    --artifact-text-secondary: var(--theme-text-secondary, #727272);
+    /* chart semantics */
+    --c-selic: #ef601b;
+    --c-ibov: #343ced;
+    --c-inv: #82951e;
+    --c-rf: #cda515;
+    --c-hist: #343ced;
+    --c-ciclo: #dd2ca5;
+    --c-ritmo: #82951e;
+    --pos-bg: #e9f7ef; --pos-tx: #1b6b3a;
+    --neg-bg: #fdecec; --neg-tx: #9b1c1c;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  html[data-theme='dark'] {
+    --pos-bg: #12351f; --pos-tx: #d8f5df;
+    --neg-bg: #3a1414; --neg-tx: #f7d6d6;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    --c-selic: #ff7a3d; --c-ibov: #6f77ff; --c-inv: #a9bd3a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0; padding: 0;
+    background: var(--artifact-background);
+    color: var(--artifact-text-primary);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 32px 24px 64px; }
+  header.head { margin-bottom: 8px; }
+  h1 { font-size: 1.85rem; font-weight: 700; margin: 0 0 6px; letter-spacing: -0.02em; }
+  .sub { color: var(--artifact-text-secondary); font-size: 0.98rem; max-width: 760px; }
+  h2 { font-size: 1.25rem; font-weight: 600; margin: 44px 0 4px; letter-spacing: -0.01em; }
+  h2 .en { color: var(--artifact-text-secondary); font-weight: 400; font-size: 0.9rem; }
+  .lead { color: var(--artifact-text-secondary); font-size: 0.95rem; margin: 4px 0 20px; max-width: 820px; }
+  section { border-top: 1px solid var(--artifact-border-light); }
+  section:first-of-type { border-top: none; }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0 8px; }
+  .kpi { background: var(--artifact-background-light); border: 1px solid var(--artifact-border-light);
+    border-radius: 12px; padding: 18px 18px 16px; }
+  .kpi .yr { font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--artifact-text-secondary); }
+  .kpi .row { display: flex; justify-content: space-between; align-items: baseline; margin-top: 10px; }
+  .kpi .row:not(:last-child){ border-bottom: 1px dashed var(--artifact-border-light); padding-bottom: 8px; margin-bottom: 8px;}
+  .kpi .lbl { font-size: 0.82rem; color: var(--artifact-text-secondary); }
+  .kpi .val { font-size: 1.15rem; font-weight: 600; }
+  .kpi .val small { font-size: 0.72rem; color: var(--artifact-text-secondary); font-weight: 400; }
+
+  .chart { width: 100%; height: 420px; }
+  .chart.short { height: 340px; }
+  .note { font-size: 0.8rem; color: var(--artifact-text-secondary); margin-top: 8px; }
+
+  table.tbl { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 0.9rem; }
+  table.tbl th, table.tbl td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--artifact-border-light); }
+  table.tbl th { font-weight: 600; color: var(--artifact-text-secondary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  table.tbl td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tag { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+  .tag.pos { background: var(--pos-bg); color: var(--pos-tx); }
+  .tag.neg { background: var(--neg-bg); color: var(--neg-tx); }
+
+  /* simulator */
+  .sim { display: grid; grid-template-columns: 320px 1fr; gap: 28px; margin-top: 22px; align-items: start; }
+  .panel { background: var(--artifact-background-light); border: 1px solid var(--artifact-border-light); border-radius: 14px; padding: 22px; }
+  .fld { margin-bottom: 20px; }
+  .fld label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; }
+  .fld .hint { font-weight: 400; color: var(--artifact-text-secondary); font-size: 0.8rem; }
+  input[type=number] { width: 100%; padding: 10px 12px; font-size: 1rem; border-radius: 8px;
+    border: 1px solid var(--artifact-border-dark); background: var(--artifact-background); color: var(--artifact-text-primary); }
+  input[type=range] { width: 100%; accent-color: var(--c-ibov); }
+  .rangeval { display:flex; justify-content: space-between; font-size:0.82rem; color: var(--artifact-text-secondary); margin-top:4px; }
+  .rangeval b { color: var(--artifact-text-primary); font-size: 1.05rem; }
+  .scచk { display:flex; flex-direction: column; gap: 8px; }
+  .chk { display: flex; align-items: center; gap: 9px; font-size: 0.9rem; padding: 7px 10px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; }
+  .chk:hover { background: var(--artifact-background-mid); }
+  .chk input { accent-color: var(--c-ibov); width: 16px; height: 16px; }
+  .swatch { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+  .res-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 12px; margin-bottom: 18px; }
+  .res { border: 1px solid var(--artifact-border-light); border-radius: 12px; padding: 14px; background: var(--artifact-background); }
+  .res .rlbl { font-size: 0.8rem; color: var(--artifact-text-secondary); display:flex; align-items:center; gap:6px; }
+  .res .rval { font-size: 1.35rem; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .res .rmul { font-size: 0.82rem; color: var(--artifact-text-secondary); margin-top: 2px; }
+  .btnrow { display:flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+  button.preset { border: 1px solid var(--artifact-border-dark); background: var(--artifact-background); color: var(--artifact-text-primary);
+    padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; transition: background .15s, border-color .15s; }
+  button.preset:hover { background: var(--artifact-selected); border-color: var(--artifact-primary-highlight); }
+  .callout { background: var(--artifact-background-light); border: 1px solid var(--artifact-border-light); border-left: 3px solid var(--c-ibov);
+    border-radius: 10px; padding: 16px 18px; margin: 18px 0; font-size: 0.92rem; }
+  .callout b { font-weight: 700; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .disc { font-size: 0.78rem; color: var(--artifact-text-secondary); margin-top: 28px; border-top: 1px solid var(--artifact-border-light); padding-top: 16px; }
+  @media (max-width: 820px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .sim { grid-template-columns: 1fr; }
+    .two { grid-template-columns: 1fr; }
+  }
+  @media print {
+    body { margin:0; padding: 0.4in 0.6in; background:#fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .wrap { max-width:100% !important; }
+    section, .kpi-grid, .sim { break-inside: avoid; }
+    .chart { height: 300px !important; }
+    button, .interactive-only { display:none !important; }
+    *, *::before, *::after { animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <h1>SELIC x Bolsa x Investidores — 1996 a 2026</h1>
+    <p class="sub">Panorama de três décadas de juros no Brasil, a resposta do Ibovespa e da base de investidores pessoa física, uma análise honesta da correlação, e um simulador de crescimento de patrimônio que você pode ajustar.</p>
+  </header>
+
+  <!-- KPIs -->
+  <section>
+    <h2>Os três momentos, lado a lado</h2>
+    <p class="lead">1996 era o Brasil pós-Plano Real, com juros altíssimos e a bolsa como coisa de poucos. 2015 foi o pico de um ciclo de aperto e pessimismo. 2026 traz juros de novo em dois dígitos, mas com uma base de investidores incomparavelmente maior — e um novo ciclo de corte apenas começando.</p>
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="yr">1996</div>
+        <div class="row"><span class="lbl">SELIC (acum. no ano)</span><span class="val">~27%</span></div>
+        <div class="row"><span class="lbl">Ibovespa (fim de ano)</span><span class="val">7.040 <small>pts</small></span></div>
+        <div class="row"><span class="lbl">Investidores PF (renda variável)</span><span class="val">~30 mil</span></div>
+      </div>
+      <div class="kpi">
+        <div class="yr">2015</div>
+        <div class="row"><span class="lbl">SELIC (fim de ano)</span><span class="val">14,25%</span></div>
+        <div class="row"><span class="lbl">Ibovespa (fim de ano)</span><span class="val">43.350 <small>pts</small></span></div>
+        <div class="row"><span class="lbl">Investidores PF (renda variável)</span><span class="val">~557 mil</span></div>
+      </div>
+      <div class="kpi">
+        <div class="yr">2026 (jun)</div>
+        <div class="row"><span class="lbl">SELIC (atual, em queda)</span><span class="val">14,25%</span></div>
+        <div class="row"><span class="lbl">Ibovespa (jun/2026)</span><span class="val">172.197 <small>pts</small></span></div>
+        <div class="row"><span class="lbl">Investidores PF (varejo)</span><span class="val">6,45 mi</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chart 1: SELIC x Ibovespa -->
+  <section>
+    <h2>SELIC vs. Ibovespa <span class="en">— juros caindo, bolsa subindo?</span></h2>
+    <p class="lead">Eixo laranja: SELIC meta de fim de ano (%). Eixo azul: pontos do Ibovespa. Passe o mouse para ver ano a ano.</p>
+    <div id="chartMain" class="chart"></div>
+    <p class="note">SELIC = meta de fim de ano (2026 = taxa atual de jun, em ciclo de corte). Ibovespa = fechamento nominal de fim de ano; 2026 = fechamento de junho.</p>
+  </section>
+
+  <!-- Chart 2: Investidores -->
+  <section>
+    <h2>A revolução silenciosa: investidores pessoa física <span class="en">— B3</span></h2>
+    <p class="lead">O dado mais transformador não é o juro nem o índice — é quem está na mesa. A base de PF em renda variável saltou de centenas de milhares para milhões, com o grande salto colado ao ciclo de corte de juros de 2019-2020.</p>
+    <div id="chartInv" class="chart short"></div>
+    <p class="note">Investidores PF em renda variável (contas/CPFs na B3). Valores até ~2018 são aproximados. 2026 = 6,45 mi de contas de varejo (jun/2026), recorde dos últimos 5 anos, com a PF detendo 19,5% do float da bolsa vs. média histórica de 14,9%.</p>
+  </section>
+
+  <!-- Correlation -->
+  <section>
+    <h2>Existe mesmo correlação entre queda de SELIC e alta da Bolsa?</h2>
+    <p class="lead">Resposta curta: <b>sim &mdash; e quando isolamos os dois maiores ciclos de queda dos juros das últimas três décadas, a correlação é notavelmente consistente</b>. Nos dois grandes períodos de recuo sustentado da SELIC (1996&ndash;2010 e 2015&ndash;2020), o Ibovespa entregou altas expressivas e a base de investidores explodiu. O motor lógico é o "efeito TINA" (<i>there is no alternative</i>): juro menor empurra capital da renda fixa para a renda variável.</p>
+    <table class="tbl">
+      <thead>
+        <tr><th>Ciclo</th><th>Movimento da SELIC</th><th>Ibovespa no período</th><th>Investidores PF</th><th>Correlação</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>1996 &rarr; 2010</b><br><span class="note">queda secular de longo prazo</span></td>
+          <td>~25% &rarr; 10,75%<br><span class="note">com pico de 45% em 1999</span></td>
+          <td class="num">7.040 &rarr; 69.305 pts <span class="tag pos">+884%</span></td>
+          <td class="num">dezenas de milhares &rarr; ~610 mil <span class="tag pos">forte alta</span></td>
+          <td><span class="tag pos">Forte +</span></td>
+        </tr>
+        <tr>
+          <td><b>2015 &rarr; 2020</b><br><span class="note">corte agressivo pós-recessão</span></td>
+          <td>14,25% &rarr; 2,00%<br><span class="note">mínima histórica</span></td>
+          <td class="num">43.350 &rarr; 119.017 pts <span class="tag pos">+174%</span></td>
+          <td class="num">~557 mil &rarr; 3,2 mi <span class="tag pos">+474%</span></td>
+          <td><span class="tag pos">Forte +</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      <b>A tese, revista:</b> olhando <i>só</i> para os dois grandes ciclos de recuo dos juros, o padrão é claro e repetido &mdash; <b>SELIC em queda sustentada = Bolsa em alta forte e base de investidores em expansão</b>. Em 1996&ndash;2010 a taxa saiu de ~25% para 10,75% e o índice se multiplicou por quase 10; em 2015&ndash;2020 caiu de 14,25% para 2,00% e o Ibovespa quase triplicou enquanto a base de PF crescia +474%. Isso reforça a leitura de que 2026 &mdash; com a SELIC saindo de 15% e iniciando um novo ciclo de corte &mdash; recria as condições que historicamente precederam grandes altas.
+      <br><br>
+      <b>Onde manter os pés no chão:</b> a correlação vale para a <i>tendência plurianual</i>, não para o mês a mês. O ciclo 1996&ndash;2010 não foi uma linha reta &mdash; teve o susto de 45% de SELIC em 1999 e quedas duras da Bolsa em 1998, 2002 e 2008 <i>dentro</i> do período. Ou seja: juro em queda é um <b>vento a favor poderoso e comprovado</b>, mas o caminho é volátil e depende também de lucros das empresas, câmbio, risco fiscal e apetite global por risco. A assimetria de 2026 é justamente essa: enquanto o corte não se confirma, a renda fixa ainda paga bem &mdash; você é "pago para esperar" o giro para a Bolsa.
+    </div>
+  </section>
+
+  <!-- Simulator -->
+  <section>
+    <h2>Simulador de crescimento de patrimônio</h2>
+    <p class="lead">Capital inicial de R$ 100.000, sem aportes mensais — só o efeito dos retornos. Ajuste o horizonte e as premissas. Compare renda fixa na SELIC, Ibovespa na média histórica, a repetição do ciclo 2016-2020 e o seu ritmo pessoal de ~110% em 3 anos.</p>
+    <div class="sim">
+      <div class="panel interactive-only">
+        <div class="fld">
+          <label>Capital inicial <span class="hint">(R$)</span></label>
+          <input type="number" id="capital" value="100000" step="10000" min="0">
+        </div>
+        <div class="fld">
+          <label>Horizonte</label>
+          <input type="range" id="horizon" min="1" max="6" value="5" step="1">
+          <div class="rangeval"><span>1 ano</span><b><span id="horizonVal">5</span> anos</b><span>6 anos</span></div>
+        </div>
+        <div class="fld">
+          <label>Cenários exibidos</label>
+          <div class="scచk" id="scenBox"></div>
+        </div>
+        <div class="fld" style="margin-bottom:0">
+          <label>Retorno anual do cenário "Personalizado"</label>
+          <input type="range" id="customRet" min="0" max="40" value="18" step="0.5">
+          <div class="rangeval"><span>0%</span><b><span id="customRetVal">18</span>% a.a.</b><span>40%</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="res-cards" id="resCards"></div>
+        <div id="chartSim" class="chart"></div>
+        <div class="btnrow interactive-only">
+          <button class="preset" onclick="setHorizon(3)">Ver 3 anos (seu histórico)</button>
+          <button class="preset" onclick="setHorizon(5)">Ver 5 anos (2026-2030)</button>
+        </div>
+      </div>
+    </div>
+    <div class="callout" style="border-left-color: var(--c-ritmo)">
+      <b>Sobre os seus ~110% em 3 anos (2019-2021):</b> nesse período o próprio Ibovespa fez apenas cerca de <b>+19%</b> acumulado (2019 +31,6%, 2020 +2,9%, 2021 −11,9%). Chegar a ~110% significa que você <b>superou o índice em quase 6x</b> — provavelmente via small caps, ações específicas ou timing muito bom no fundo da pandemia. Isso equivale a ~<b>28% ao ano</b>. É um resultado excelente, porém acima da média sustentável de longo prazo: use-o como cenário "otimista/teto", não como premissa base.
+    </div>
+  </section>
+
+  <!-- Verdict -->
+  <section>
+    <h2>Estamos de novo num momento único para multiplicar patrimônio?</h2>
+    <p class="lead">É um momento <b>atrativo e assimétrico</b>, com semelhanças claras a 2016 — mas "único" é palavra forte. O que joga a favor e o que exige cautela:</p>
+    <div class="two">
+      <div class="panel" style="border-left:3px solid var(--pos-tx)">
+        <h3 style="margin-top:0;font-size:1rem">A favor 🟢</h3>
+        <ul style="margin:0;padding-left:18px;font-size:0.92rem">
+          <li>SELIC saiu de 15% e iniciou ciclo de corte (14,25% em jun/2026), com projeções de ~13% ou menos no fim do ano.</li>
+          <li>Renda fixa ainda paga muito bem — você é "pago para esperar" o giro para a bolsa.</li>
+          <li>PF detém 19,5% do float, acima da média de 14,9%: base madura e engajada.</li>
+          <li>O roteiro de 2016-2020 mostra o potencial: Ibovespa quase dobrou quando os juros despencaram.</li>
+        </ul>
+      </div>
+      <div class="panel" style="border-left:3px solid var(--neg-tx)">
+        <h3 style="margin-top:0;font-size:1rem">Cautela 🟡</h3>
+        <ul style="margin:0;padding-left:18px;font-size:0.92rem">
+          <li>Inflação ainda acima da meta e cenário externo incerto (conflitos, petróleo) podem travar os cortes.</li>
+          <li>Correlação juro-bolsa não é garantia: 2021 caiu com juro baixo, 2023-25 subiu com juro alto.</li>
+          <li>~110% em 3 anos é excepcional, não repetível de forma confiável.</li>
+          <li>Risco fiscal e eleição de 2026 adicionam volatilidade.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <p class="disc">Este material é informativo e educacional, não constitui recomendação de investimento. Retornos passados não garantem resultados futuros. Dados de SELIC (Bacen/Copom), Ibovespa (B3) e investidores PF (B3/Itaú BBA) coletados em jul/2026; séries anteriores a 2018 e projeções são aproximações. Simulações são hipotéticas e não incluem impostos, taxas ou inflação.</p>
+</div>
+
+<script>
+const fmtBRL = v => v.toLocaleString('pt-BR', {style:'currency', currency:'BRL', maximumFractionDigits:0});
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+// ---------- Historical data ----------
+const years   = [1996,2000,2005,2010,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
+const selic   = [23.9, 15.75, 18.0, 10.75, 14.25, 13.75, 7.0, 6.5, 4.5, 2.0, 9.25, 13.75, 11.75, 12.25, 15.0, 14.25];
+const ibov    = [7040, 15259, 33455, 69305, 43350, 60227, 76402, 87887, 115645, 118573, 104822, 109735, 134185, 120283, 158611, 172197];
+const invRV   = [0.03, 0.08, 0.15, 0.61, 0.56, 0.62, 0.62, 0.81, 1.68, 3.23, 4.20, 5.00, 5.00, 5.10, 5.80, 6.45];
+
+// ---------- Chart 1: SELIC x Ibovespa ----------
+const mainChart = echarts.init(document.getElementById('chartMain'), null, {renderer:'svg'});
+mainChart.setOption({
+  tooltip: { trigger:'axis' },
+  legend: { data:['SELIC (%)','Ibovespa (pts)'], top:0, textStyle:{color:cssVar('--artifact-text-primary')} },
+  grid: { left:56, right:64, top:44, bottom:36 },
+  xAxis: { type:'category', data:years, axisLabel:{color:cssVar('--artifact-text-secondary')}, axisLine:{lineStyle:{color:cssVar('--artifact-border-dark')}} },
+  yAxis: [
+    { type:'value', name:'SELIC %', position:'left', axisLabel:{formatter:'{value}%',color:cssVar('--c-selic')}, nameTextStyle:{color:cssVar('--c-selic')}, splitLine:{lineStyle:{color:cssVar('--artifact-border-light')}} },
+    { type:'value', name:'Ibovespa', position:'right', axisLabel:{formatter:v=>(v/1000)+'k',color:cssVar('--c-ibov')}, nameTextStyle:{color:cssVar('--c-ibov')}, splitLine:{show:false} }
+  ],
+  series: [
+    { name:'SELIC (%)', type:'line', smooth:true, data:selic, yAxisIndex:0, lineStyle:{width:3,color:cssVar('--c-selic')}, itemStyle:{color:cssVar('--c-selic')}, symbol:'circle', symbolSize:6 },
+    { name:'Ibovespa (pts)', type:'line', smooth:true, data:ibov, yAxisIndex:1, lineStyle:{width:3,color:cssVar('--c-ibov')}, itemStyle:{color:cssVar('--c-ibov')}, areaStyle:{color:cssVar('--c-ibov'),opacity:0.06}, symbol:'circle', symbolSize:6 }
+  ]
+});
+
+// ---------- Chart 2: Investidores ----------
+const invChart = echarts.init(document.getElementById('chartInv'), null, {renderer:'svg'});
+invChart.setOption({
+  tooltip: { trigger:'axis', valueFormatter:v=>v+' mi' },
+  grid: { left:56, right:24, top:24, bottom:36 },
+  xAxis: { type:'category', data:years, axisLabel:{color:cssVar('--artifact-text-secondary')}, axisLine:{lineStyle:{color:cssVar('--artifact-border-dark')}} },
+  yAxis: { type:'value', name:'milhões PF', axisLabel:{color:cssVar('--artifact-text-secondary')}, nameTextStyle:{color:cssVar('--artifact-text-secondary')}, splitLine:{lineStyle:{color:cssVar('--artifact-border-light')}} },
+  series: [{ name:'Investidores PF (RV)', type:'bar', data:invRV, itemStyle:{color:cssVar('--c-inv'),borderRadius:[4,4,0,0]} }]
+});
+
+// ---------- Simulator ----------
+const scenarios = {
+  rf:    { label:'Renda Fixa (SELIC em queda)', color:'--c-rf',    rets:[0.135,0.115,0.10,0.095,0.095,0.09] },
+  hist:  { label:'Ibovespa (média histórica ~12%)', color:'--c-hist', rets:[0.12,0.12,0.12,0.12,0.12,0.12] },
+  ciclo: { label:'Ciclo 2016-2020 repetido', color:'--c-ciclo', rets:[0.389,0.269,0.15,0.316,0.029,0.12] },
+  ritmo: { label:'Seu ritmo (~110% em 3 anos / 28% a.a.)', color:'--c-ritmo', rets:[0.281,0.281,0.281,0.281,0.281,0.281] },
+  custom:{ label:'Personalizado', color:'--artifact-primary-highlight', rets:null }
+};
+const scenOrder = ['rf','hist','ciclo','ritmo','custom'];
+const active = { rf:true, hist:true, ciclo:true, ritmo:true, custom:false };
+
+// build checkboxes
+const scenBox = document.getElementById('scenBox');
+scenOrder.forEach(k=>{
+  const s = scenarios[k];
+  const lab = document.createElement('label');
+  lab.className = 'chk';
+  lab.innerHTML = `<input type="checkbox" data-k="${k}" ${active[k]?'checked':''}>
+    <span class="swatch" style="background:var(${s.color})"></span><span>${s.label}</span>`;
+  scenBox.appendChild(lab);
+});
+scenBox.addEventListener('change', e=>{ if(e.target.dataset.k){ active[e.target.dataset.k]=e.target.checked; render(); }});
+
+const simChart = echarts.init(document.getElementById('chartSim'), null, {renderer:'svg'});
+
+function trajectory(rets, cap, n){
+  const arr=[cap]; let v=cap;
+  for(let i=0;i<n;i++){ v = v*(1+rets[i % rets.length]); arr.push(v); }
+  return arr;
+}
+function setHorizon(n){ document.getElementById('horizon').value=n; document.getElementById('horizonVal').textContent=n; render(); }
+
+function render(){
+  const cap = parseFloat(document.getElementById('capital').value)||0;
+  const n = parseInt(document.getElementById('horizon').value);
+  const custR = parseFloat(document.getElementById('customRet').value)/100;
+  document.getElementById('horizonVal').textContent=n;
+  document.getElementById('customRetVal').textContent=(custR*100).toFixed(1).replace('.0','');
+  scenarios.custom.rets = [custR,custR,custR,custR,custR,custR];
+
+  const startYear = 2026;
+  const xLabels = Array.from({length:n+1},(_,i)=>startYear+i);
+  const series=[]; const cards=[];
+  scenOrder.forEach(k=>{
+    if(!active[k]) return;
+    const s=scenarios[k];
+    const traj = trajectory(s.rets, cap, n);
+    const final = traj[traj.length-1];
+    const mult = cap>0 ? final/cap : 0;
+    series.push({ name:s.label, type:'line', smooth:true, data:traj.map(v=>Math.round(v)),
+      lineStyle:{width:3,color:cssVar(s.color)}, itemStyle:{color:cssVar(s.color)}, symbol:'circle', symbolSize:5 });
+    cards.push({label:s.label, color:s.color, final, mult, gain:(mult-1)*100});
+  });
+
+  // result cards
+  const rc=document.getElementById('resCards'); rc.innerHTML='';
+  cards.forEach(c=>{
+    const d=document.createElement('div'); d.className='res';
+    d.innerHTML=`<div class="rlbl"><span class="swatch" style="background:var(${c.color})"></span>${c.label.split('(')[0].trim()}</div>
+      <div class="rval">${fmtBRL(c.final)}</div>
+      <div class="rmul">${c.mult.toFixed(2)}x · ${c.gain>=0?'+':''}${c.gain.toFixed(0)}% em ${n} ano${n>1?'s':''}</div>`;
+    rc.appendChild(d);
+  });
+
+  simChart.setOption({
+    tooltip:{ trigger:'axis', valueFormatter:v=>fmtBRL(v) },
+    legend:{ top:0, type:'scroll', textStyle:{color:cssVar('--artifact-text-primary')} },
+    grid:{ left:72, right:24, top:60, bottom:36 },
+    xAxis:{ type:'category', data:xLabels, axisLabel:{color:cssVar('--artifact-text-secondary')}, axisLine:{lineStyle:{color:cssVar('--artifact-border-dark')}} },
+    yAxis:{ type:'value', axisLabel:{formatter:v=>'R$ '+(v/1000).toFixed(0)+'k',color:cssVar('--artifact-text-secondary')}, splitLine:{lineStyle:{color:cssVar('--artifact-border-light')}} },
+    series
+  }, true);
+}
+
+['capital','horizon','customRet'].forEach(id=>document.getElementById(id).addEventListener('input',render));
+render();
+
+window.addEventListener('resize',()=>{ mainChart.resize(); invChart.resize(); simChart.resize(); });
+</script>
+
+<script>
+  window.GleanBridge && window.GleanBridge.postMessage({
+    actionId: 'export-pdf', type: 'glean-add-menu',
+    metadata: { label: 'Export as PDF', icon: 'export' }
+  });
+  window.GleanBridge && window.GleanBridge.onMessage('action', function(data){
+    if (data.actionId === 'export-pdf') window.print();
+  });
+  function prepareChartsForPrint(){
+    document.querySelectorAll('[_echarts_instance_]').forEach(function(el){
+      var chart = echarts.getInstanceByDom(el); if(!chart) return;
+      var img = new Image(); img.src = chart.getDataURL({type:'png',pixelRatio:2}); img.className='print-chart-img';
+      img.style.cssText='width:100%;height:100%;object-fit:contain;position:absolute;top:0;left:0;z-index:10;';
+      el.dataset.prevPosition=el.style.position; el.style.position='relative'; el.appendChild(img);
+    });
+  }
+  function cleanUpAfterPrint(){
+    document.querySelectorAll('[_echarts_instance_]').forEach(function(el){
+      var img=el.querySelector('.print-chart-img'); if(!img) return;
+      img.remove(); el.style.position=el.dataset.prevPosition||''; delete el.dataset.prevPosition;
+    });
+  }
+  window.addEventListener('beforeprint', prepareChartsForPrint);
+  window.addEventListener('afterprint', cleanUpAfterPrint);
+</script>
+</body>
+</html>

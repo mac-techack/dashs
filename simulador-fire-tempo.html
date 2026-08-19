@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Simulador FIRE · dimensão tempo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#10151B; --panel:#171E27; --panelHi:#1E2733; --line:#2A3644;
+    --text:#E7ECF0; --dim:#93A0AD; --faint:#5E6B78;
+    --amber:#F2B84B; --emerald:#43D690; --red:#F07A6E; --blue:#6BA8F0;
+    --mono:ui-monospace,'SF Mono','Roboto Mono',Menlo,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+    padding:28px 20px;line-height:1.5;}
+  .wrap{max-width:960px;margin:0 auto;}
+  .eyebrow{font-size:11.5px;letter-spacing:2px;color:var(--amber);
+    text-transform:uppercase;margin-bottom:6px;}
+  h1{font-size:22px;font-weight:700;margin:0 0 8px;letter-spacing:-.3px;}
+  .lede{font-size:13.5px;color:var(--dim);max-width:660px;margin:0 0 22px;}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;}
+  /* hero */
+  .hero{padding:22px 24px;margin-bottom:20px;}
+  .hero-top{font-size:12.5px;color:var(--faint);margin-bottom:12px;}
+  .dates{display:flex;gap:12px;flex-wrap:wrap;}
+  .datecard{flex:1;min-width:150px;background:var(--panelHi);border-radius:12px;
+    padding:14px 16px;border-top:2px solid var(--line);}
+  .datecard .lab{font-size:11.5px;color:var(--faint);margin-bottom:6px;
+    text-transform:uppercase;letter-spacing:.6px;}
+  .datecard .val{font-family:var(--mono);font-size:26px;font-weight:700;letter-spacing:-.5px;}
+  .datecard .sub{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:2px;}
+  .note{font-size:12.5px;color:var(--emerald);margin-top:14px;}
+  /* layout */
+  .grid{display:grid;grid-template-columns:minmax(250px,.85fr) minmax(280px,1.15fr);
+    gap:20px;align-items:start;}
+  .controls{padding:20px 22px;}
+  .ctitle{font-size:12.5px;color:var(--dim);font-weight:600;letter-spacing:.3px;margin-bottom:18px;}
+  .srow{margin-bottom:17px;}
+  .srow .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;}
+  .srow .top span:first-child{font-size:13px;color:var(--dim);}
+  .srow .top span:last-child{font-family:var(--mono);font-size:14.5px;color:var(--text);
+    font-variant-numeric:tabular-nums;}
+  input[type=range]{width:100%;cursor:pointer;}
+  .scn{display:flex;gap:10px;margin-top:4px;}
+  .scn .box{flex:1;background:var(--panelHi);border-radius:10px;padding:9px 10px;text-align:center;}
+  .scn .box label{display:block;font-size:10.5px;color:var(--faint);
+    text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+  .scn .box input{width:100%;background:transparent;border:none;color:var(--text);
+    font-family:var(--mono);font-size:16px;text-align:center;border-bottom:1px solid var(--line);
+    padding-bottom:3px;}
+  .scn .box input:focus{outline:none;border-bottom-color:var(--amber);}
+  /* targets strip */
+  .tstrip{display:flex;gap:12px;padding:16px 20px;margin-bottom:20px;flex-wrap:wrap;}
+  .tstrip .t{flex:1;min-width:180px;}
+  .tstrip .t .lab{font-size:12px;color:var(--dim);margin-bottom:4px;}
+  .tstrip .t .v{font-family:var(--mono);font-size:20px;font-weight:700;}
+  .tstrip .t .u{font-family:var(--mono);font-size:12px;color:var(--faint);}
+  /* chart */
+  .chartbox{padding:20px 20px 14px;margin-top:20px;}
+  .chartbox h3{font-size:13px;margin:0 0 2px;font-weight:600;}
+  .chartbox p{font-size:12px;color:var(--dim);margin:0 0 14px;}
+  .cwrap{height:300px;position:relative;}
+  footer{font-size:11.5px;color:var(--faint);margin-top:18px;line-height:1.55;}
+  @media(max-width:720px){.grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Modelo de ponte · dimensão tempo</div>
+  <h1>Quando cada fase fica financiada</h1>
+  <p class="lede">O portfólio cresce mês a mês (retorno + aportes) e cruza os alvos derivados do gap
+    que a Vanessa não cobre. Três cenários de retorno; o marco fixo de mai/2032 é o step-down da faculdade.</p>
+
+  <!-- HERO -->
+  <div class="panel hero">
+    <div class="hero-top">Data provável de independência — quando você pode parar de trabalhar</div>
+    <div class="dates">
+      <div class="datecard" id="dc-stress" style="border-top-color:var(--red)">
+        <div class="lab">Stress · <span id="r-stress">10</span>%</div>
+        <div class="val" style="color:var(--red)" id="d-stress">—</div>
+        <div class="sub" id="s-stress"></div>
+      </div>
+      <div class="datecard" id="dc-base" style="border-top-color:var(--amber)">
+        <div class="lab">Base · <span id="r-base">17</span>%</div>
+        <div class="val" style="color:var(--amber)" id="d-base">—</div>
+        <div class="sub" id="s-base"></div>
+      </div>
+      <div class="datecard" id="dc-up" style="border-top-color:var(--emerald)">
+        <div class="lab">Upside · <span id="r-up">25</span>%</div>
+        <div class="val" style="color:var(--emerald)" id="d-up">—</div>
+        <div class="sub" id="s-up"></div>
+      </div>
+    </div>
+    <div class="note" id="hero-note"></div>
+  </div>
+
+  <!-- TARGETS -->
+  <div class="panel tstrip">
+    <div class="t"><div class="lab">Alvo Fase 1 · com o Kael (mai/2032)</div>
+      <div class="v" style="color:var(--amber)" id="t1">—</div><div class="u" id="t1u"></div></div>
+    <div class="t"><div class="lab">Alvo Fase 2 · step-down (pós-2032)</div>
+      <div class="v" style="color:var(--blue)" id="t2">—</div><div class="u" id="t2u"></div></div>
+    <div class="t"><div class="lab">Retirada efetiva / crescimento líquido</div>
+      <div class="v" id="tnet">—</div><div class="u" id="tnetu"></div></div>
+  </div>
+
+  <!-- CONTROLS + CHART -->
+  <div class="grid">
+    <div class="panel controls">
+      <div class="ctitle">VARIÁVEIS</div>
+      <div class="srow"><div class="top"><span>Patrimônio hoje</span><span id="v-cur"></span></div>
+        <input type="range" id="cur" min="1000000" max="7000000" step="50000" value="2820000" style="accent-color:var(--blue)"></div>
+      <div class="srow"><div class="top"><span>Aporte mensal</span><span id="v-ap"></span></div>
+        <input type="range" id="ap" min="0" max="40000" step="1000" value="18000" style="accent-color:var(--emerald)"></div>
+      <div class="srow"><div class="top"><span>Cobertura da Vanessa</span><span id="v-va"></span></div>
+        <input type="range" id="va" min="10000" max="30000" step="500" value="20000" style="accent-color:var(--emerald)"></div>
+      <div class="srow"><div class="top"><span>Gasto com a faculdade</span><span id="v-sf"></span></div>
+        <input type="range" id="sf" min="20000" max="60000" step="1000" value="40000" style="accent-color:var(--amber)"></div>
+      <div class="srow"><div class="top"><span>Gasto sem a faculdade</span><span id="v-ss"></span></div>
+        <input type="range" id="ss" min="15000" max="50000" step="1000" value="30000" style="accent-color:var(--blue)"></div>
+      <div class="srow"><div class="top"><span>SWR</span><span id="v-swr"></span></div>
+        <input type="range" id="swr" min="3" max="6" step="0.25" value="5" style="accent-color:var(--amber)"></div>
+      <div class="srow"><div class="top"><span>Câmbio USD/BRL</span><span id="v-fx"></span></div>
+        <input type="range" id="fx" min="4.5" max="6.5" step="0.01" value="5.21" style="accent-color:var(--dim)"></div>
+      <div class="ctitle" style="margin:6px 0 10px">RETORNO ANUAL POR CENÁRIO</div>
+      <div class="scn">
+        <div class="box"><label style="color:var(--red)">Stress</label><input type="number" id="rs" value="10"></div>
+        <div class="box"><label style="color:var(--amber)">Base</label><input type="number" id="rb" value="17"></div>
+        <div class="box"><label style="color:var(--emerald)">Upside</label><input type="number" id="ru" value="25"></div>
+      </div>
+    </div>
+
+    <div class="panel chartbox">
+      <h3>Trajetória do patrimônio</h3>
+      <p>Onde cada curva cruza a linha âmbar (Fase 1) é a data de independência plena. A faixa azul (Fase 2) você já superou.</p>
+      <div class="cwrap"><canvas id="chart"></canvas></div>
+    </div>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+const MESES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const HORIZON=132; // meses projetados (11 anos)
+const brl=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}).format(v);
+const usd=v=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
+const milBRL=v=>'R$ '+(v/1e6).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'M';
+
+const start=(()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1);})();
+const stepIdx=(2032-start.getFullYear())*12+(4-start.getMonth()); // mai/2032
+const dateAt=i=>new Date(start.getFullYear(),start.getMonth()+i,1);
+const fmtDate=d=>MESES[d.getMonth()]+'/'+d.getFullYear();
+
+const $=id=>document.getElementById(id);
+const inputs=['cur','ap','va','sf','ss','swr','fx','rs','rb','ru'];
+
+function project(annual,cur,ap){
+  const rm=Math.pow(1+annual/100,1/12)-1;
+  let p=cur;const pts=[];
+  for(let m=0;m<=HORIZON;m++){pts.push(p);p=p*(1+rm)+ap;}
+  return pts;
+}
+function crossIdx(pts,target){for(let i=0;i<pts.length;i++)if(pts[i]>=target)return i;return null;}
+
+// data de independência = min( cruza Fase1 , mai/2032 se Fase2 já garantida lá )
+function fireInfo(pts,t1,t2){
+  const ci=crossIdx(pts,t1);
+  const fase2ok = pts[Math.min(stepIdx,pts.length-1)]>=t2;
+  let idx=null, via='';
+  if(ci!==null){idx=ci;via='ao atingir '+milBRL(t1);}
+  if(fase2ok && stepIdx< (idx??Infinity)){idx=stepIdx;via='no step-down (Fase 2 já garantida)';}
+  if(idx===null)return{txt:'>11 anos',sub:'',idx:null};
+  return{txt:fmtDate(dateAt(idx)),sub:via,idx};
+}
+
+let chart;
+function render(){
+  const cur=+$('cur').value, ap=+$('ap').value, va=+$('va').value,
+        sf=+$('sf').value, ss=+$('ss').value, swr=+$('swr').value, fx=+$('fx').value,
+        rs=+$('rs').value, rb=+$('rb').value, ru=+$('ru').value;
+
+  // readouts
+  $('v-cur').textContent=milBRL(cur); $('v-ap').textContent=brl(ap)+'/mês';
+  $('v-va').textContent=brl(va)+'/mês'; $('v-sf').textContent=brl(sf)+'/mês';
+  $('v-ss').textContent=brl(ss)+'/mês'; $('v-swr').textContent=swr.toFixed(2)+'%';
+  $('v-fx').textContent='R$ '+fx.toFixed(2);
+  $('r-stress').textContent=rs; $('r-base').textContent=rb; $('r-up').textContent=ru;
+
+  // targets
+  const gap1=Math.max(0,sf-va), gap2=Math.max(0,ss-va);
+  const t1=gap1*12/(swr/100), t2=gap2*12/(swr/100);
+  $('t1').textContent=milBRL(t1); $('t1u').textContent='≈ '+usd(t1/fx)+' · gap '+brl(gap1)+'/mês';
+  $('t2').textContent=milBRL(t2); $('t2u').textContent='≈ '+usd(t2/fx)+' · gap '+brl(gap2)+'/mês';
+  const net=rb-swr;
+  $('tnet').innerHTML=swr.toFixed(1)+'% <span style="color:var(--faint)">→</span> '
+    +'<span style="color:'+(net>=0?'var(--emerald)':'var(--red)')+'">'+(net>=0?'+':'')+net+'%</span>';
+  $('tnetu').textContent=net>=0?'portfólio cresce mesmo bancando o gap':'retirada supera o retorno — ajuste';
+
+  // projections
+  const pS=project(rs,cur,ap), pB=project(rb,cur,ap), pU=project(ru,cur,ap);
+  const fS=fireInfo(pS,t1,t2), fB=fireInfo(pB,t1,t2), fU=fireInfo(pU,t1,t2);
+  $('d-stress').textContent=fS.txt; $('s-stress').textContent=fS.sub;
+  $('d-base').textContent=fB.txt;   $('s-base').textContent=fB.sub;
+  $('d-up').textContent=fU.txt;     $('s-up').textContent=fU.sub;
+
+  const latest=[fS,fB,fU].filter(f=>f.idx!==null).map(f=>f.idx).sort((a,b)=>b-a)[0];
+  $('hero-note').textContent = latest!==undefined
+    ? 'Mesmo no pior cenário, independência no mais tardar em '+fmtDate(dateAt(latest))
+      +' — porque a Fase 2 (R$'+ (t2/1e6).toFixed(1) +'M) já está coberta e o gap da faculdade termina em mai/2032.'
+    : 'Ajuste os aportes ou a cobertura: nenhum cenário atinge o alvo no horizonte.';
+
+  // chart
+  const labels=[...Array(HORIZON+1).keys()];
+  const ds=(data,color,label)=>({label,data,borderColor:color,borderWidth:2.4,
+    pointRadius:0,tension:.25,fill:false});
+  const cfg={
+    type:'line',
+    data:{labels,datasets:[
+      ds(pS,'#F07A6E','Stress '+rs+'%'),
+      ds(pB,'#F2B84B','Base '+rb+'%'),
+      ds(pU,'#43D690','Upside '+ru+'%'),
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:{duration:250},
+      interaction:{mode:'index',intersect:false},
+      scales:{
+        x:{type:'linear',min:0,max:HORIZON,grid:{color:'#2A3644'},
+          ticks:{color:'#5E6B78',font:{size:11},maxRotation:0,
+            callback:v=>{const d=dateAt(v);return d.getMonth()===0?"'"+String(d.getFullYear()).slice(2):'';}}},
+        y:{grid:{color:'#2A3644'},ticks:{color:'#5E6B78',font:{size:11},
+          callback:v=>'R$'+(v/1e6).toFixed(1)+'M'}}
+      },
+      plugins:{
+        legend:{labels:{color:'#93A0AD',boxWidth:14,font:{size:11.5}}},
+        tooltip:{backgroundColor:'#1E2733',borderColor:'#2A3644',borderWidth:1,
+          titleColor:'#E7ECF0',bodyColor:'#E7ECF0',
+          callbacks:{title:it=>fmtDate(dateAt(it[0].parsed.x)),
+            label:it=>it.dataset.label.split(' ')[0]+': '+milBRL(it.parsed.y)}}
+      }
+    },
+    plugins:[{
+      id:'refs',
+      afterDraw(ch){
+        const{ctx,chartArea:a,scales}=ch;
+        const hline=(y,color,txt)=>{const py=scales.y.getPixelForValue(y);
+          if(py<a.top||py>a.bottom)return;
+          ctx.save();ctx.strokeStyle=color;ctx.setLineDash([5,4]);ctx.lineWidth=1.3;
+          ctx.beginPath();ctx.moveTo(a.left,py);ctx.lineTo(a.right,py);ctx.stroke();
+          ctx.setLineDash([]);ctx.fillStyle=color;ctx.font='600 11px '+getComputedStyle(document.body).fontFamily;
+          ctx.textAlign='left';ctx.fillText(txt,a.left+6,py-5);ctx.restore();};
+        hline(t1,'#F2B84B','Fase 1 · '+milBRL(t1));
+        hline(t2,'#6BA8F0','Fase 2 · '+milBRL(t2));
+        // vertical mai/2032
+        const px=scales.x.getPixelForValue(stepIdx);
+        if(px>=a.left&&px<=a.right){ctx.save();ctx.strokeStyle='#93A0AD';ctx.setLineDash([3,4]);
+          ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(px,a.top);ctx.lineTo(px,a.bottom);ctx.stroke();
+          ctx.setLineDash([]);ctx.fillStyle='#93A0AD';ctx.font='600 10px '+getComputedStyle(document.body).fontFamily;
+          ctx.textAlign='center';ctx.fillText('step-down',px,a.top-3);ctx.restore();}
+      }
+    }]
+  };
+  if(chart){chart.data=cfg.data;chart.options=cfg.options;chart.update();}
+  else chart=new Chart($('chart'),cfg);
+
+  $('foot').textContent='O alvo da Fase 1 trata o gap da faculdade como perpétuo (conservador — na prática dura ~6 anos). '
+    +'Aportes seguem enquanto você trabalha; a retirada só incide sobre o gap não coberto pela Vanessa. '
+    +'Projeção determinística, sem sequência de retornos nem inflação — cenário de referência, não recomendação de investimento.';
+}
+inputs.forEach(id=>{$(id).addEventListener('input',render);});
+render();
+</script>
+</body>
+</html>

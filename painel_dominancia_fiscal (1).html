@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Monitoramento — Risco Fiscal e Dominância Fiscal</title>
+<style>
+  :root {
+    --artifact-background: var(--theme-background, #ffffff);
+    --artifact-background-light: var(--theme-background-light, #f6f6f6);
+    --artifact-background-mid: var(--theme-background-mid, #f0f0f0);
+    --artifact-border-light: var(--theme-border-light, #e5e5e5);
+    --artifact-border-dark: var(--theme-border-dark, #cccccc);
+    --artifact-text-primary: var(--theme-text-primary, #1b1b1b);
+    --artifact-text-secondary: var(--theme-text-secondary, #727272);
+    --artifact-primary-highlight: var(--theme-primary-highlight, #1b1b1b);
+    --artifact-primary-hover: var(--theme-primary-hover, #404040);
+    --artifact-selected: var(--theme-selected, #e8e8e8);
+
+    --artifact-green-bg: #e9f7ef;   --artifact-green-tx: #1c5334;  --artifact-green-ac: #2e8b57;
+    --artifact-amber-bg: #fdf6e3;   --artifact-amber-tx: #7a5b00;  --artifact-amber-ac: #cda515;
+    --artifact-orange-bg: #fdeede;  --artifact-orange-tx: #8a3d0b; --artifact-orange-ac: #ef601b;
+    --artifact-red-bg: #fbe9e9;     --artifact-red-tx: #8a1c1c;    --artifact-red-ac: #d13030;
+    --artifact-chart-line: #343ced; --artifact-chart-grid: #e5e5e5;
+  }
+  html[data-theme='dark'] {
+    --artifact-green-bg: #12351f;   --artifact-green-tx: #cdeed8;  --artifact-green-ac: #4cbf82;
+    --artifact-amber-bg: #3a3110;   --artifact-amber-tx: #f2e2a8;  --artifact-amber-ac: #e0c04a;
+    --artifact-orange-bg: #3d2410;  --artifact-orange-tx: #f6d3b4; --artifact-orange-ac: #ff7a3c;
+    --artifact-red-bg: #3a1414;     --artifact-red-tx: #f4c9c9;    --artifact-red-ac: #e85c5c;
+    --artifact-chart-grid: #3a3a3a;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0; padding: 32px 24px 64px;
+    background: var(--artifact-background);
+    color: var(--artifact-text-primary);
+    line-height: 1.5;
+  }
+  .shell { max-width: 1160px; margin: 0 auto; }
+
+  header.page { margin-bottom: 8px; }
+  h1 { font-size: 1.9rem; font-weight: 700; margin: 0 0 6px; letter-spacing: -0.02em; }
+  .subtitle { color: var(--artifact-text-secondary); font-size: 0.98rem; max-width: 760px; }
+  .asof { font-size: 0.8rem; color: var(--artifact-text-secondary); margin-top: 10px; }
+
+  .divider { height: 1px; background: var(--artifact-border-light); margin: 28px 0; border: 0; }
+  h2 { font-size: 1.25rem; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .section-sub { color: var(--artifact-text-secondary); font-size: 0.9rem; margin: 0 0 18px; }
+
+  /* Alert legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 6px; }
+  .legend .pill { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; font-size: 0.82rem; font-weight: 500; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .p-green  { background: var(--artifact-green-bg);  color: var(--artifact-green-tx); }
+  .p-amber  { background: var(--artifact-amber-bg);  color: var(--artifact-amber-tx); }
+  .p-orange { background: var(--artifact-orange-bg); color: var(--artifact-orange-tx); }
+  .p-red    { background: var(--artifact-red-bg);    color: var(--artifact-red-tx); }
+  .d-green{background:var(--artifact-green-ac);} .d-amber{background:var(--artifact-amber-ac);}
+  .d-orange{background:var(--artifact-orange-ac);} .d-red{background:var(--artifact-red-ac);}
+
+  /* KPI cards */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+  .kpi { background: var(--artifact-background-light); border: 1px solid var(--artifact-border-light);
+         border-radius: 12px; padding: 18px; border-left: 4px solid var(--artifact-border-dark); }
+  .kpi.s-amber  { border-left-color: var(--artifact-amber-ac); }
+  .kpi.s-orange { border-left-color: var(--artifact-orange-ac); }
+  .kpi .name { font-size: 0.82rem; color: var(--artifact-text-secondary); font-weight: 500; margin-bottom: 6px; }
+  .kpi .val { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.02em; }
+  .kpi .val small { font-size: 0.9rem; font-weight: 500; color: var(--artifact-text-secondary); }
+  .kpi .trend { font-size: 0.8rem; margin-top: 4px; }
+  .kpi .trend.up { color: var(--artifact-orange-ac); }
+  .kpi .badge { display: inline-block; margin-top: 12px; font-size: 0.72rem; font-weight: 600;
+                padding: 3px 9px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .badge.b-amber { background: var(--artifact-amber-bg); color: var(--artifact-amber-tx); }
+  .badge.b-orange { background: var(--artifact-orange-bg); color: var(--artifact-orange-tx); }
+  .badge.b-green { background: var(--artifact-green-bg); color: var(--artifact-green-tx); }
+
+  /* Chart */
+  .chart-card { background: var(--artifact-background-light); border: 1px solid var(--artifact-border-light);
+                border-radius: 12px; padding: 22px; margin-top: 18px; }
+  .chart-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 2px; }
+  .chart-note { font-size: 0.8rem; color: var(--artifact-text-secondary); margin-bottom: 14px; }
+  svg { width: 100%; height: auto; display: block; }
+
+  /* Tables */
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--artifact-border-light); border-radius: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+  thead th { background: var(--artifact-background-mid); text-align: left; padding: 12px 14px;
+             font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em;
+             color: var(--artifact-text-secondary); border-bottom: 1px solid var(--artifact-border-light); }
+  tbody td { padding: 12px 14px; border-bottom: 1px solid var(--artifact-border-light); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr:hover { background: var(--artifact-background-light); }
+  .ind-name { font-weight: 600; }
+  .cell-green { color: var(--artifact-green-ac); font-weight: 600; }
+  .cell-amber { color: var(--artifact-amber-ac); font-weight: 600; }
+  .cell-orange { color: var(--artifact-orange-ac); font-weight: 600; }
+  .cell-red { color: var(--artifact-red-ac); font-weight: 600; }
+
+  /* Freq tabs */
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tab { padding: 9px 18px; border-radius: 999px; border: 1px solid var(--artifact-border-light);
+         background: var(--artifact-background-light); color: var(--artifact-text-secondary);
+         font-size: 0.86rem; font-weight: 500; cursor: pointer; transition: all 0.18s ease; }
+  .tab:hover { border-color: var(--artifact-border-dark); color: var(--artifact-text-primary); }
+  .tab.active { background: var(--artifact-primary-highlight); color: var(--artifact-background);
+                border-color: var(--artifact-primary-highlight); }
+  .tab-panel { display: none; animation: fade 0.3s ease; }
+  .tab-panel.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* Stage ladder */
+  .ladder { display: grid; gap: 12px; }
+  .stage { display: grid; grid-template-columns: 52px 1fr; gap: 16px; align-items: start;
+           border-radius: 12px; padding: 16px 18px; border: 1px solid var(--artifact-border-light); }
+  .stage.st-amber { background: var(--artifact-amber-bg); }
+  .stage.st-orange { background: var(--artifact-orange-bg); }
+  .stage.st-red { background: var(--artifact-red-bg); }
+  .stage .num { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center;
+                justify-content: center; font-weight: 700; font-size: 1.2rem; }
+  .st-amber .num { background: var(--artifact-amber-ac); color: #fff; }
+  .st-orange .num { background: var(--artifact-orange-ac); color: #fff; }
+  .st-red .num { background: var(--artifact-red-ac); color: #fff; }
+  .stage h3 { margin: 2px 0 6px; font-size: 1rem; }
+  .st-amber h3 { color: var(--artifact-amber-tx); } .st-orange h3 { color: var(--artifact-orange-tx); } .st-red h3 { color: var(--artifact-red-tx); }
+  .stage ul { margin: 0; padding-left: 18px; font-size: 0.87rem; }
+  .stage.st-amber, .stage.st-amber ul { color: var(--artifact-amber-tx); }
+  .stage.st-orange, .stage.st-orange ul { color: var(--artifact-orange-tx); }
+  .stage.st-red, .stage.st-red ul { color: var(--artifact-red-tx); }
+  .stage li { margin-bottom: 3px; }
+
+  .note-box { background: var(--artifact-background-light); border: 1px solid var(--artifact-border-light);
+              border-radius: 12px; padding: 18px 20px; font-size: 0.9rem; }
+  .note-box strong { font-weight: 700; }
+  .cards2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .icard { background: var(--artifact-background-light); border: 1px solid var(--artifact-border-light);
+           border-radius: 12px; padding: 18px; }
+  .icard h4 { margin: 0 0 8px; font-size: 0.95rem; }
+  .icard p { margin: 0; font-size: 0.86rem; color: var(--artifact-text-secondary); }
+
+  .upd { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 0.82rem;
+          color: var(--artifact-text-secondary); }
+  .upd .lbl { font-weight: 600; }
+  .upd .val { display: inline-block; min-width: 90px; padding: 3px 10px; border-radius: 6px;
+              border: 1px dashed var(--artifact-border-dark); background: var(--artifact-background);
+              color: var(--artifact-text-primary); cursor: text; }
+  .upd .val:focus { outline: 2px solid var(--artifact-primary-highlight); border-style: solid; }
+  .upd .hint { font-size: 0.76rem; opacity: 0.75; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; align-items: center; }
+  .btn-refresh { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px;
+    border-radius: 999px; border: 1px solid var(--artifact-primary-highlight);
+    background: var(--artifact-primary-highlight); color: var(--artifact-background);
+    font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.18s ease; }
+  .btn-refresh:hover { background: var(--artifact-primary-hover); border-color: var(--artifact-primary-hover); transform: translateY(-1px); }
+  .btn-refresh:active { transform: translateY(0); }
+  .btn-refresh svg { width: 15px; height: 15px; fill: none; stroke: var(--artifact-background); stroke-width: 2; }
+  .actions .note { font-size: 0.78rem; color: var(--artifact-text-secondary); }
+  .disclaimer { font-size: 0.78rem; color: var(--artifact-text-secondary); margin-top: 26px;
+                border-top: 1px solid var(--artifact-border-light); padding-top: 14px; }
+
+  @media print {
+    body { margin: 0; padding: 0.4in 0.6in; background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .shell { max-width: 100% !important; width: 100% !important; }
+    section, .header { break-inside: avoid; margin-bottom: 20px !important; }
+    [class*="kpi"], [class*="card"], .stage { break-inside: avoid; box-shadow: none !important; }
+    .tab-panel { display: block !important; }
+    .tabs { display: none !important; }
+    [class*="fade"] { opacity: 1 !important; transform: none !important; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    button, [role="button"] { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="page">
+    <h1>Painel de Monitoramento — Risco Fiscal &amp; Dominância Fiscal</h1>
+    <p class="subtitle">Indicadores para acompanhar o risco de estresse na dívida pública brasileira, com faixas de alerta e as fontes oficiais de cada dado. Objetivo: antecipar o cenário &ldquo;por bem ou por mal&rdquo; e decidir posicionamento defensivo (ex.: hedge cambial) com base em dados, não em manchetes.</p>
+    <p class="asof">Valores de referência ancorados em reportagem do InfoMoney (jul/2026). Não são dados ao vivo &mdash; atualize cada indicador na fonte oficial indicada. Uso educacional; não é recomendação de investimento.</p>
+    <div class="actions">
+      <button class="btn-refresh" onclick="requestUpdate()">
+        <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+        Atualizar indicadores
+      </button>
+      <span class="note">Busca os dados mais recentes (Focus, Tesouro, ANBIMA, B3) e reescreve os cards e alertas.</span>
+    </div>
+  </header>
+
+  <div class="legend">
+    <span class="pill p-green"><span class="dot d-green"></span>Verde &middot; Normal</span>
+    <span class="pill p-amber"><span class="dot d-amber"></span>Amarelo &middot; Deterioração gradual</span>
+    <span class="pill p-orange"><span class="dot d-orange"></span>Laranja &middot; Mercado testando o governo</span>
+    <span class="pill p-red"><span class="dot d-red"></span>Vermelho &middot; Dominância fiscal / risco de cauda</span>
+  </div>
+
+  <hr class="divider">
+
+  <!-- KPIs -->
+  <section>
+    <h2>Termômetro atual</h2>
+    <p class="section-sub">Onde estão hoje os indicadores estruturais da dívida (referência jul/2026).</p>
+    <div class="kpi-grid">
+      <div class="kpi s-orange">
+        <div class="name">Dívida atrelada à Selic (% do estoque)</div>
+        <div class="val">50,1<small>%</small></div>
+        <div class="trend up">▲ era ~41% há 3 anos</div>
+        <span class="badge b-orange">Laranja</span>
+      </div>
+      <div class="kpi s-orange">
+        <div class="name">Risco de repactuação (custo redefinido em ≤12m)</div>
+        <div class="val">~63<small>%</small></div>
+        <div class="trend up">▲ era 58,5% em 2024 &middot; recorde</div>
+        <span class="badge b-orange">Laranja</span>
+      </div>
+      <div class="kpi s-amber">
+        <div class="name">Exposição total à taxa curta (Selic + compromissadas)</div>
+        <div class="val">R$ 5,27<small> tri &middot; 52,6%</small></div>
+        <div class="trend">da dívida total</div>
+        <span class="badge b-amber">Vigiar</span>
+      </div>
+      <div class="kpi s-amber">
+        <div class="name">Prêmio projetado exigido nas LFTs (Tesouro Selic)</div>
+        <div class="val">102&ndash;103<small>% do CDI</small></div>
+        <div class="trend">hoje pagam ~Selic + 0,10%</div>
+        <span class="badge b-amber">Vigiar</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Chart -->
+  <section>
+    <h2>Tendência: composição da dívida</h2>
+    <p class="section-sub">O que importa é a direção, não o número absoluto. Selic subindo + prefixados/IPCA caindo = menos fôlego para atravessar ciclos de juros altos.</p>
+    <div class="chart-card">
+      <div class="chart-title">% da Dívida Pública Federal atrelada à Selic</div>
+      <div class="chart-note">Reconstrução ilustrativa da tendência (~41% &rarr; 50,1% em 3 anos). Substitua pelos números do Relatório Mensal da Dívida do Tesouro.</div>
+      <svg viewBox="0 0 720 260" role="img" aria-label="Gráfico de linha da dívida atrelada à Selic">
+        <!-- grid lines -->
+        <g stroke="var(--artifact-chart-grid)" stroke-width="1">
+          <line x1="60" y1="30" x2="700" y2="30"/>
+          <line x1="60" y1="80" x2="700" y2="80"/>
+          <line x1="60" y1="130" x2="700" y2="130"/>
+          <line x1="60" y1="180" x2="700" y2="180"/>
+          <line x1="60" y1="210" x2="700" y2="210"/>
+        </g>
+        <!-- y labels -->
+        <g fill="var(--artifact-text-secondary)" font-size="11" text-anchor="end">
+          <text x="52" y="34">55%</text>
+          <text x="52" y="84">50%</text>
+          <text x="52" y="134">45%</text>
+          <text x="52" y="184">40%</text>
+          <text x="52" y="214">38%</text>
+        </g>
+        <!-- x labels -->
+        <g fill="var(--artifact-text-secondary)" font-size="11" text-anchor="middle">
+          <text x="90"  y="232">2023</text>
+          <text x="243" y="232">2024</text>
+          <text x="396" y="232">2025</text>
+          <text x="549" y="232">2026</text>
+          <text x="670" y="232">hoje</text>
+        </g>
+        <!-- data: 41% -> y180 ; ~44% -> y150 ; ~47% -> y110 ; ~49% -> y90 ; 50.1% -> y79 -->
+        <polyline fill="none" stroke="var(--artifact-chart-line)" stroke-width="3"
+          stroke-linecap="round" stroke-linejoin="round"
+          points="90,180 243,152 396,112 549,92 670,79"/>
+        <g fill="var(--artifact-chart-line)">
+          <circle cx="90" cy="180" r="4"/><circle cx="243" cy="152" r="4"/>
+          <circle cx="396" cy="112" r="4"/><circle cx="549" cy="92" r="4"/>
+          <circle cx="670" cy="79" r="5"/>
+        </g>
+        <text x="670" y="66" fill="var(--artifact-chart-line)" font-size="12" font-weight="700" text-anchor="middle">50,1%</text>
+        <text x="90" y="168" fill="var(--artifact-text-secondary)" font-size="11" text-anchor="middle">~41%</text>
+      </svg>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Monitoring plan with tabs -->
+  <section>
+    <h2>Plano de monitoramento &amp; faixas de alerta</h2>
+    <p class="section-sub">Organizado por frequência de acompanhamento. Cada indicador tem a fonte oficial e as faixas verde / amarelo / laranja-vermelho.</p>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="weekly">Semanal</button>
+      <button class="tab" data-tab="monthly">Mensal</button>
+      <button class="tab" data-tab="daily">Diário / mercado</button>
+      <button class="tab" data-tab="qual">Qualitativo</button>
+    </div>
+
+    <div class="tab-panel active" id="weekly">
+      <div class="upd"><span class="lbl">Última atualização:</span><span class="val" contenteditable="true">—</span><span class="hint">(clique para editar &middot; ideal toda segunda, após o Focus)</span></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Indicador</th><th>Onde atualizar</th><th>Verde</th><th>Amarelo</th><th>Laranja / Vermelho</th></tr></thead>
+          <tbody>
+            <tr><td class="ind-name">Expectativa de Selic / IPCA / câmbio</td><td>Relatório Focus (BCB)</td><td class="cell-green">Revisões estáveis</td><td class="cell-amber">Revisões p/ pior por semanas</td><td class="cell-orange">Descolamento acelerado</td></tr>
+            <tr><td class="ind-name">Expectativa de Dívida Bruta/PIB</td><td>Relatório Focus (BCB)</td><td class="cell-green">Trajetória estabilizando</td><td class="cell-amber">Revisões contínuas p/ cima</td><td class="cell-orange">Sem horizonte de estabilização</td></tr>
+            <tr><td class="ind-name">Resultado dos leilões do Tesouro</td><td>Tesouro Nacional / BCB</td><td class="cell-green">Demanda firme</td><td class="cell-amber">Demanda fraca em NTN-B</td><td class="cell-orange">Cancelamentos de leilão</td></tr>
+            <tr><td class="ind-name">Prêmio exigido nas LFTs</td><td>Tesouro / mercado</td><td class="cell-green">~Selic + 0,10%</td><td class="cell-amber">0,15&ndash;0,25 ponto</td><td class="cell-orange">≥ 0,30 ponto / 102&ndash;103% CDI</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="monthly">
+      <div class="upd"><span class="lbl">Última atualização:</span><span class="val" contenteditable="true">—</span><span class="hint">(clique para editar &middot; ideal após o Relatório Mensal da Dívida)</span></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Indicador</th><th>Onde atualizar</th><th>Verde</th><th>Amarelo</th><th>Laranja / Vermelho</th></tr></thead>
+          <tbody>
+            <tr><td class="ind-name">% da dívida atrelada à Selic</td><td>Relatório Mensal da Dívida (Tesouro)</td><td class="cell-green">Estável / caindo</td><td class="cell-amber">Subindo &gt; 45%</td><td class="cell-orange">&gt; 50% e acelerando</td></tr>
+            <tr><td class="ind-name">Risco de repactuação (≤12m)</td><td>Relatório da Dívida / UBS</td><td class="cell-green">&lt; 55%</td><td class="cell-amber">55&ndash;60%</td><td class="cell-orange">&gt; 62% (recorde)</td></tr>
+            <tr><td class="ind-name">Prazo médio da dívida</td><td>Relatório da Dívida (Tesouro)</td><td class="cell-green">Estável / subindo</td><td class="cell-amber">Encurtando</td><td class="cell-orange">Queda acentuada</td></tr>
+            <tr><td class="ind-name">Dívida Bruta do Gov. Geral (DBGG/PIB)</td><td>Estatísticas Fiscais (BCB)</td><td class="cell-green">Estabilizada</td><td class="cell-amber">Crescendo devagar</td><td class="cell-orange">Crescimento sem teto</td></tr>
+            <tr><td class="ind-name">Conta de juros / PIB &amp; primário</td><td>Estatísticas Fiscais (BCB)</td><td class="cell-green">Primário &ge; estabilizador</td><td class="cell-amber">Primário abaixo do necessário</td><td class="cell-orange">Juros &gt; crescimento (r&gt;g) persistente</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="daily">
+      <div class="upd"><span class="lbl">Última atualização:</span><span class="val" contenteditable="true">—</span><span class="hint">(clique para editar &middot; acompanhamento diário)</span></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Indicador</th><th>Onde atualizar</th><th>Verde</th><th>Amarelo</th><th>Laranja / Vermelho</th></tr></thead>
+          <tbody>
+            <tr><td class="ind-name">Inclinação da curva de juros (DI)</td><td>B3 / ANBIMA</td><td class="cell-green">Estável</td><td class="cell-amber">Steepening moderado</td><td class="cell-orange">Longos disparando vs. curtos</td></tr>
+            <tr><td class="ind-name">Câmbio BRL/USD vs. pares emergentes</td><td>BCB / mercado</td><td class="cell-green">Acompanha pares</td><td class="cell-amber">Descola levemente</td><td class="cell-orange">Deprecia com dólar fraco lá fora</td></tr>
+            <tr><td class="ind-name">CDS 5 anos (risco-país)</td><td>Provedores de mercado</td><td class="cell-green">Estável / caindo</td><td class="cell-amber">Subindo gradual</td><td class="cell-orange">Alta consistente e forte</td></tr>
+            <tr><td class="ind-name">Inflação implícita (breakeven NTN-B)</td><td>ANBIMA / Tesouro</td><td class="cell-green">Ancorada na meta</td><td class="cell-amber">Acima da meta</td><td class="cell-orange">Sobe apesar de Selic alta</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="qual">
+      <div class="note-box">
+        <p style="margin-top:0"><strong>O gatilho decisivo é político, não quantitativo.</strong> O &ldquo;ponto sem volta&rdquo; prático é o momento em que o mercado deixa de acreditar que existe um plano crível de estabilização da dívida.</p>
+        <ul>
+          <li><strong>Sinal &ldquo;por bem&rdquo;:</strong> compromisso concreto com desaceleração do crescimento do gasto público (mais importante, segundo Gallo, até que a meta de primário) &rarr; ajuste crível no início do próximo governo derrubaria a estrutura de juros.</li>
+          <li><strong>Sinal &ldquo;por mal&rdquo;:</strong> ausência de plano crível &rarr; mercado testa o governo, taxas sobem, e cresce a discussão sobre medidas heterodoxas.</li>
+          <li><strong>Acompanhe:</strong> discurso do BC (Galípolo) e do Ministério da Fazenda, PLDO/PLOA, arcabouço fiscal, e a reação da curva a cada anúncio fiscal.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Stage ladder -->
+  <section>
+    <h2>Escada de gatilhos — do alerta ao risco de cauda</h2>
+    <p class="section-sub">Dominância fiscal é um processo não-linear: funciona por confiança até o dia em que não funciona mais.</p>
+    <div class="ladder">
+      <div class="stage st-amber">
+        <div class="num">1</div>
+        <div>
+          <h3>Alerta amarelo — deterioração gradual</h3>
+          <ul>
+            <li>% da dívida em Selic subindo mês a mês; prazo médio caindo</li>
+            <li>Curva de juros começando a inclinar (longos subindo)</li>
+            <li>Focus revisando dívida/PIB e câmbio continuamente para pior</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage st-orange">
+        <div class="num">2</div>
+        <div>
+          <h3>Alerta laranja — mercado testa o governo (&ldquo;por mal&rdquo;)</h3>
+          <ul>
+            <li>Cancelamentos recorrentes de leilão</li>
+            <li>Tesouro obrigado a pagar prêmio nas LFTs (102&ndash;103% do CDI)</li>
+            <li>CDS e câmbio descolando dos pares emergentes</li>
+            <li>Inflação implícita subindo apesar de Selic alta</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stage st-red">
+        <div class="num">3</div>
+        <div>
+          <h3>Vermelho — dominância fiscal / risco de cauda</h3>
+          <ul>
+            <li>BC forçado a não subir (ou cortar) juros mesmo com inflação alta, pelo custo fiscal</li>
+            <li>Discussão pública de medidas heterodoxas: compra compulsória de títulos, repressão financeira</li>
+            <li>Fuga de capital e depreciação cambial acelerada</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Positioning -->
+  <section>
+    <h2>Como se posicionar (hedge cambial / fora do Brasil)</h2>
+    <p class="section-sub">Do mais simples ao mais robusto. A lógica de hedge é montar proteção antes do estresse, de forma gradual e estrutural &mdash; não reagir no vermelho, quando o câmbio já se depreciou.</p>
+    <div class="cards2">
+      <div class="icard"><h4>Fundos cambiais / ETFs de dólar (B3)</h4><p>Exposição ao dólar sem sair do país. Simples e líquido, mas o ativo permanece na jurisdição brasileira.</p></div>
+      <div class="icard"><h4>BDRs &amp; ETFs internacionais (B3)</h4><p>Ações globais (ex.: S&amp;P 500) em reais, com correlação ao dólar. Diversifica emissor e moeda dentro do país.</p></div>
+      <div class="icard"><h4>Conta / corretora no exterior</h4><p>Acesso direto a Treasuries, ETFs globais. Único caminho que também protege contra repressão financeira / controle de capitais domésticos.</p></div>
+      <div class="icard"><h4>Ouro</h4><p>Proteção adicional contra desvalorização de moedas e estresse sistêmico.</p></div>
+    </div>
+    <div class="note-box" style="margin-top:16px">
+      <strong>Pontos de atenção:</strong> (1) tributação e declaração de ativos no exterior têm regras próprias (IR + declaração ao BCB acima de limites) &mdash; consulte um contador; (2) diversificar ≠ zerar Brasil: o risco de cauda é, por definição, de baixa probabilidade, e sair 100% custa caro se o cenário &ldquo;por bem&rdquo; se materializar (juros caem, ativos locais disparam); (3) timing: monte a proteção antes, não depois do gatilho.
+    </div>
+  </section>
+
+  <p class="disclaimer">Este painel é um framework analítico e educacional, não recomendação personalizada de investimento. Valores marcados são pontos de referência de jul/2026 e devem ser atualizados nas fontes oficiais (Tesouro Nacional, Banco Central / Relatório Focus, ANBIMA, B3). Decisões de alocação e hedge cambial dependem do seu perfil, horizonte e objetivos.</p>
+
+</div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var t = btn.getAttribute('data-tab');
+      document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById(t).classList.add('active');
+    });
+  });
+
+  function requestUpdate(){
+    window.GleanBridge && window.GleanBridge.postMessage({
+      actionId: 'refresh-fiscal-indicators',
+      type: 'glean-send-message',
+      metadata: {
+        displayLabel: 'Atualizar os indicadores do painel de risco fiscal com os dados mais recentes',
+        context: 'Busque na web os dados mais recentes para o Painel de Monitoramento de Risco Fiscal: (1) % da Dívida Pública Federal atrelada à Selic e prazo médio (Relatório Mensal da Dívida do Tesouro); (2) risco de repactuação em 12m e exposição à taxa curta; (3) expectativas do Relatório Focus (Selic, IPCA, câmbio, Dívida/PIB); (4) inclinação da curva DI, CDS 5 anos, câmbio BRL/USD e inflação implícita das NTN-Bs. Depois, ATUALIZE o arquivo painel_dominancia_fiscal.html: reescreva os valores dos KPI cards, o gráfico de tendência da dívida em Selic, e recalcule os selos de alerta (verde/amarelo/laranja/vermelho) e a escada de gatilhos conforme as faixas definidas. Preencha os campos de Última atualização com a data de hoje. Se algum dado não for encontrado, mantenha o valor anterior e sinalize na resposta.'
+      }
+    });
+  }
+
+  window.GleanBridge && window.GleanBridge.postMessage({
+    actionId: 'export-pdf', type: 'glean-add-menu',
+    metadata: { label: 'Export as PDF', icon: 'export' }
+  });
+  window.GleanBridge && window.GleanBridge.onMessage('action', function(data){
+    if (data.actionId === 'export-pdf') window.print();
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR" >
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A IA nao nasceu em 2023 — Timeline 1943-2026</title>
+<style>
+:root {
+  --artifact-background: #ffffff;
+  --artifact-background-light: #f1f3f6;
+  --artifact-background-mid: #e9ecf1;
+  --artifact-border-light: #e3e6ec;
+  --artifact-border-dark: #cdd2db;
+  --artifact-primary-brand: #3559e6;
+  --artifact-primary-highlight: #0d0f14;
+  --artifact-primary-hover: #2442b8;
+  --artifact-selected: #eaeefc;
+  --artifact-text-primary: #11141a;
+  --artifact-text-secondary: #5c6470;
+  --artifact-text-highlight: #e8eefc;
+  --artifact-positive-background: #e8f6ee;
+  --artifact-positive-text: #11141a;
+  --artifact-positive: #159a6a;
+  --artifact-negative: #dc4c4c;
+  --artifact-winter: #4a6d8c;
+  --artifact-winter-band: #eef2f6;
+  --artifact-gen: #7b4fd4;
+}
+html[data-theme='dark'] {
+  --artifact-background: #0a0b0e;
+  --artifact-background-light: #121419;
+  --artifact-background-mid: #181b22;
+  --artifact-border-light: #23262e;
+  --artifact-border-dark: #343844;
+  --artifact-primary-brand: #6a92ff;
+  --artifact-primary-highlight: #f5f7fb;
+  --artifact-primary-hover: #88a8ff;
+  --artifact-selected: #1a2030;
+  --artifact-text-primary: #eef0f4;
+  --artifact-text-secondary: #9aa0ad;
+  --artifact-text-highlight: #14213d;
+  --artifact-positive-background: #0e2a1d;
+  --artifact-positive-text: #c8f5da;
+  --artifact-positive: #46d39a;
+  --artifact-negative: #ff6b6b;
+  --artifact-winter: #8fb2cf;
+  --artifact-winter-band: #131a22;
+  --artifact-gen: #b18bff;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 16px; font-weight: 400; line-height: 1.6; letter-spacing: -0.005em;
+  background-color: var(--artifact-background);
+  color: var(--artifact-text-primary);
+}
+h1, h2, h3 { font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; color: var(--artifact-text-primary); margin: 0; }
+h1 { font-size: clamp(2.4rem, 6.5vw, 4.6rem); font-weight: 300; }
+h2 { font-size: clamp(1.6rem, 3.6vw, 2.6rem); }
+h3 { font-size: 1.25rem; font-weight: 500; }
+p { margin: 0 0 1rem 0; }
+.eyebrow, .kicker, .field-label, th {
+  font-family: "SF Mono", "IBM Plex Mono", "Cascadia Code", "Consolas", monospace;
+  font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--artifact-text-secondary);
+}
+.mono { font-family: "SF Mono", "IBM Plex Mono", "Consolas", monospace; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 28px; }
+section { padding: 76px 0; }
+.rule { height: 1px; background: var(--artifact-border-light); border: 0; margin: 0; }
+
+/* HERO */
+.hero { padding: 96px 0 64px 0; }
+.hero .eyebrow { display: block; margin-bottom: 26px; }
+.hero h1 { max-width: 20ch; }
+.hero .lede { font-size: clamp(1.05rem, 1.9vw, 1.35rem); color: var(--artifact-text-secondary); max-width: 58ch; margin-top: 30px; line-height: 1.5; }
+.hero .lede strong { color: var(--artifact-text-primary); font-weight: 500; }
+
+/* TOC */
+.toc { position: sticky; top: 0; z-index: 50; background: var(--artifact-background); border-top: 1px solid var(--artifact-border-light); border-bottom: 1px solid var(--artifact-border-light); }
+.toc-inner { display: flex; gap: 26px; overflow-x: auto; padding: 14px 28px; max-width: 1100px; margin: 0 auto; scrollbar-width: none; }
+.toc-inner::-webkit-scrollbar { display: none; }
+.toc a { font-family: "SF Mono", "IBM Plex Mono", "Consolas", monospace; font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; color: var(--artifact-text-secondary); white-space: nowrap; padding-bottom: 2px; border-bottom: 1px solid transparent; }
+.toc a:hover { color: var(--artifact-text-primary); }
+.toc a.active { color: var(--artifact-primary-brand); border-bottom-color: var(--artifact-primary-brand); }
+
+/* LAYERS */
+.layers { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0; border: 1px solid var(--artifact-border-light); border-radius: 6px; overflow: hidden; margin-top: 40px; }
+.layer { padding: 30px 26px; border-right: 1px solid var(--artifact-border-light); background: var(--artifact-background); }
+.layer:last-child { border-right: 0; }
+.layer .yr { font-family: "SF Mono", "IBM Plex Mono", monospace; font-size: 13px; letter-spacing: 0.06em; color: var(--artifact-primary-brand); display: block; margin-bottom: 12px; }
+.layer .nm { font-size: 1.15rem; font-weight: 500; margin-bottom: 10px; display: block; }
+.layer .ds { font-size: 0.9rem; color: var(--artifact-text-secondary); line-height: 1.55; }
+.layer.gen { background: var(--artifact-text-highlight); }
+.layer.gen .yr { color: var(--artifact-gen); }
+
+/* CHART */
+.chart { width: 100%; margin-top: 36px; }
+.cyclechart { width: 100%; height: auto; display: block; margin-top: 30px; overflow: visible; }
+.svg-tick { font-family: "SF Mono","IBM Plex Mono",monospace; font-size: 12px; fill: var(--artifact-text-secondary); }
+.svg-wlabel { font-family: "SF Mono","IBM Plex Mono",monospace; font-size: 11px; letter-spacing: 0.1em; fill: var(--artifact-winter); }
+.svg-mlabel { font-family: "SF Mono","IBM Plex Mono",monospace; font-size: 11px; letter-spacing: 0.06em; fill: var(--artifact-text-primary); }
+
+.chart-note { font-size: 0.82rem; color: var(--artifact-text-secondary); margin-top: 8px; }
+
+/* TIMELINE */
+.era { margin-top: 60px; }
+.era-head { display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; padding-bottom: 14px; border-bottom: 1px solid var(--artifact-border-dark); margin-bottom: 4px; }
+.era-head .span { font-family: "SF Mono", "IBM Plex Mono", monospace; font-size: 13px; letter-spacing: 0.08em; color: var(--artifact-primary-brand); }
+.era-head .ttl { font-size: 1.45rem; font-weight: 400; letter-spacing: -0.02em; }
+.era-head .tag { font-family: "SF Mono", "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--artifact-text-secondary); border: 1px solid var(--artifact-border-light); border-radius: 3px; padding: 3px 8px; }
+.era.winter .era-head { border-bottom-color: var(--artifact-winter); }
+.era.winter .era-head .span, .era.winter .era-head .ttl { color: var(--artifact-winter); }
+.era.winter .items { background: var(--artifact-winter-band); border-radius: 4px; padding: 8px 20px 8px 0; }
+
+.items { }
+.item { display: grid; grid-template-columns: 96px 1fr; gap: 24px; padding: 20px 0; border-bottom: 1px solid var(--artifact-border-light); }
+.item:last-child { border-bottom: 0; }
+.item .yr { font-family: "SF Mono", "IBM Plex Mono", monospace; font-size: 14px; letter-spacing: 0.04em; color: var(--artifact-text-secondary); padding-top: 2px; }
+.era.winter .item { padding-left: 20px; }
+.item .bd h4 { margin: 0 0 6px 0; font-size: 1.02rem; font-weight: 500; letter-spacing: -0.01em; }
+.item .bd p { margin: 0; font-size: 0.93rem; color: var(--artifact-text-secondary); line-height: 1.6; }
+.item.key .bd h4 { color: var(--artifact-primary-brand); }
+.item.key .yr { color: var(--artifact-primary-brand); }
+.pill { display: inline-block; font-family: "SF Mono", "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; margin-left: 10px; vertical-align: 1px; background: var(--artifact-selected); color: var(--artifact-primary-brand); }
+
+/* CAUSES */
+table { width: 100%; border-collapse: collapse; margin-top: 32px; font-size: 0.93rem; }
+th { text-align: left; padding: 0 16px 12px 0; border-bottom: 1px solid var(--artifact-border-dark); }
+td { padding: 18px 16px 18px 0; border-bottom: 1px solid var(--artifact-border-light); vertical-align: top; color: var(--artifact-text-secondary); line-height: 1.55; }
+td:first-child { color: var(--artifact-text-primary); font-weight: 500; width: 26%; }
+
+/* QUOTE */
+.quote { margin: 48px 0 0 0; padding: 34px 0 0 0; border-top: 1px solid var(--artifact-border-dark); }
+.quote blockquote { margin: 0; font-size: clamp(1.2rem, 2.4vw, 1.7rem); font-weight: 300; line-height: 1.35; letter-spacing: -0.02em; max-width: 42ch; }
+.quote .attr { margin-top: 18px; font-family: "SF Mono", "IBM Plex Mono", monospace; font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--artifact-text-secondary); }
+
+/* COMPARE */
+.cmp { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 36px; }
+.cmp .col { border: 1px solid var(--artifact-border-light); border-radius: 6px; padding: 26px; background: var(--artifact-background); }
+.cmp .col h3 { margin-bottom: 16px; font-size: 1.05rem; }
+.cmp .col ul { margin: 0; padding-left: 18px; }
+.cmp .col li { font-size: 0.91rem; color: var(--artifact-text-secondary); line-height: 1.55; margin-bottom: 11px; }
+.cmp .col.pos { background: var(--artifact-positive-background); border-color: var(--artifact-positive); }
+.cmp .col.pos h3 { color: var(--artifact-positive-text); }
+.cmp .col.neg { border-color: var(--artifact-negative); }
+
+/* FOCAL */
+.focal { background: var(--artifact-text-highlight); border-radius: 6px; padding: 44px 40px; margin-top: 44px; }
+.focal .big { font-weight: 300; font-size: clamp(2.2rem, 5vw, 3.4rem); line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.focal .cap { font-size: 0.95rem; color: var(--artifact-text-secondary); max-width: 62ch; margin-top: 16px; }
+.focal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 34px; }
+
+/* SOURCES */
+.src { font-size: 0.88rem; color: var(--artifact-text-secondary); }
+.src ol { padding-left: 20px; margin: 16px 0 0 0; }
+.src li { margin-bottom: 9px; line-height: 1.5; }
+.src a { color: var(--artifact-primary-brand); text-decoration: none; }
+.src a:hover { text-decoration: underline; }
+.srclink { display: inline-flex; align-items: center; gap: 7px; font-family: "SF Mono", "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--artifact-primary-brand); text-decoration: none; border: 1px solid var(--artifact-border-dark); border-radius: 4px; padding: 7px 12px; margin-top: 26px; }
+.srclink:hover { border-color: var(--artifact-primary-brand); }
+
+/* TOOLTIP */
+.info { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border: 1px solid var(--artifact-border-dark); border-radius: 50%; font-size: 10px; font-family: "SF Mono", monospace; color: var(--artifact-text-secondary); cursor: help; position: relative; margin-left: 7px; vertical-align: 2px; flex: none; }
+.info:hover, .info:focus { border-color: var(--artifact-primary-brand); color: var(--artifact-primary-brand); outline: none; }
+.info .tip { visibility: hidden; opacity: 0; position: absolute; bottom: calc(100% + 9px); left: 50%; transform: translateX(-50%); width: 290px; background: var(--artifact-background-mid); color: var(--artifact-text-primary); border: 1px solid var(--artifact-border-dark); border-radius: 5px; padding: 12px 14px; font-family: "Inter", -apple-system, sans-serif; font-size: 12px; font-weight: 400; line-height: 1.5; letter-spacing: 0; text-transform: none; text-align: left; z-index: 100; transition: opacity 0.14s ease; pointer-events: none; }
+.info:hover .tip, .info:focus .tip { visibility: visible; opacity: 1; }
+
+/* REVEAL */
+.rv { opacity: 0; transform: translateY(14px); animation: rise 0.7s cubic-bezier(0.2,0.7,0.3,1) forwards; }
+@keyframes rise { to { opacity: 1; transform: none; } }
+.d1 { animation-delay: 0.05s } .d2 { animation-delay: 0.16s } .d3 { animation-delay: 0.28s } .d4 { animation-delay: 0.4s }
+@media (prefers-reduced-motion: reduce) { .rv { animation: none; opacity: 1; transform: none; } }
+@media (max-width: 640px) {
+  .item { grid-template-columns: 68px 1fr; gap: 14px; }
+  .wrap { padding: 0 20px; }
+  section { padding: 54px 0; }
+  .focal { padding: 30px 24px; }
+}
+
+@media print {
+  body { margin: 0; padding: 0.4in 0.6in; background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .wrap { max-width: 100% !important; width: 100% !important; }
+  .toc { display: none !important; }
+  section { break-inside: auto; padding: 22px 0 !important; }
+  .era, .item, .layer, .cmp .col, .focal, table, thead, .quote { break-inside: avoid; }
+  .cyclechart { break-inside: avoid; max-height: 3.1in; }
+  .info { display: none !important; }
+  .rv { opacity: 1 !important; transform: none !important; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  button, [role="button"] { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow rv d1">Historia da inteligencia artificial &middot; 1943 &mdash; 2026</span>
+    <h1 class="rv d2">A IA nao nasceu em 2023.</h1>
+    <p class="lede rv d3">Nasceu em <strong>1956</strong>, na Conferencia de Dartmouth. O que surgiu em <strong>2017</strong> foi o Transformer. O que se difundiu em <strong>novembro de 2022</strong> foi a IA <strong>generativa</strong> &mdash; uma camada dentro de um campo com setenta anos de historia, duas grandes crises de financiamento e tres paradigmas abandonados pelo caminho.</p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#camadas">As quatro camadas</a>
+    <a href="#ciclos">Ciclos de hype</a>
+    <a href="#timeline">Timeline completa</a>
+    <a href="#invernos">Por que houve invernos</a>
+    <a href="#terceiro">Um terceiro inverno?</a>
+    <a href="#fontes">Fontes e metodo</a>
+  </div>
+</nav>
+
+<section id="camadas">
+  <div class="wrap">
+    <span class="eyebrow">A correcao</span>
+    <h2 style="margin-top:14px; max-width:24ch;">Quatro camadas, quatro datas diferentes</h2>
+    <p style="color:var(--artifact-text-secondary); max-width:64ch; margin-top:20px;">Confundir IA com IA generativa e como confundir &ldquo;computacao&rdquo; com &ldquo;aplicativo de celular&rdquo;. Cada camada e um subconjunto da anterior, com sua propria data de nascimento.<span class="info" tabindex="0">i<span class="tip">Sintese conceitual construida a partir da literatura historica do campo (Wikipedia AI winter, Lighthill Report 1973, artigos de revisao 2025-2026 listados em Fontes) e das publicacoes originais de cada marco tecnico citado.</span></span></p>
+    <div class="layers">
+      <div class="layer">
+        <span class="yr mono">1956</span>
+        <span class="nm">Inteligencia Artificial</span>
+        <span class="ds">O campo. Qualquer maquina que executa tarefas que exigiriam inteligencia humana &mdash; inclusive por regras escritas a mao, sem aprender nada.</span>
+      </div>
+      <div class="layer">
+        <span class="yr mono">1959 &mdash; 1997</span>
+        <span class="nm">Machine Learning</span>
+        <span class="ds">O sistema aprende padroes a partir de dados em vez de receber regras. Arvores de decisao, SVM, regressao, random forest. Grande parte do valor produtivo ainda vem daqui.</span>
+      </div>
+      <div class="layer">
+        <span class="yr mono">2006 &mdash; 2012</span>
+        <span class="nm">Deep Learning</span>
+        <span class="ds">Redes neurais profundas. A virada pratica foi a AlexNet em 2012, quando GPU, dados rotulados e backpropagation finalmente se encontraram.</span>
+      </div>
+      <div class="layer gen">
+        <span class="yr mono">2017 &mdash; 2022</span>
+        <span class="nm">IA Generativa</span>
+        <span class="ds">Modelos que geram conteudo novo. Arquitetura viabilizada pelo Transformer (2017), difundida ao publico pelo ChatGPT (30/11/2022). O que o palestrante chamou de &ldquo;o surgimento da IA&rdquo;.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="ciclos">
+  <div class="wrap">
+    <span class="eyebrow">Setenta anos de expectativa</span>
+    <h2 style="margin-top:14px; max-width:26ch;">O campo nunca cresceu em linha reta</h2>
+    <p style="color:var(--artifact-text-secondary); max-width:64ch; margin-top:20px;">Duas vezes a narrativa correu na frente da capacidade tecnica &mdash; e nas duas vezes o financiamento desapareceu.<span class="info" tabindex="0">i<span class="tip">Curva esquematica de atencao e financiamento, nao uma serie quantitativa. Construida a partir dos marcos documentados de corte e retomada de verba (ALPAC 1966, Lighthill 1973, cortes DARPA 1974, XCON/Fifth Generation 1980-82, colapso LISP 1987, cortes SCI 1987-88, AlexNet 2012, ChatGPT 2022). Faixas sombreadas = periodos de inverno reconhecidos: 1974-1980 e 1987-1993.</span></span></p>
+    <svg class="cyclechart" viewBox="0 0 1040 380" role="img" aria-label="Curva de atencao e financiamento em IA de 1956 a 2026, com as faixas dos dois invernos destacadas" preserveAspectRatio="xMidYMid meet">
+<rect x="294.9" y="54" width="83.0" height="280.0" fill="var(--artifact-winter)" opacity="0.13"/>
+<text x="336.4" y="70" text-anchor="middle" class="svg-wlabel">1º INVERNO</text>
+<rect x="474.7" y="54" width="83.0" height="280.0" fill="var(--artifact-winter)" opacity="0.13"/>
+<text x="516.2" y="70" text-anchor="middle" class="svg-wlabel">2º INVERNO</text>
+<text x="101.3" y="356" text-anchor="middle" class="svg-tick">1960</text>
+<text x="239.6" y="356" text-anchor="middle" class="svg-tick">1970</text>
+<text x="377.9" y="356" text-anchor="middle" class="svg-tick">1980</text>
+<text x="516.2" y="356" text-anchor="middle" class="svg-tick">1990</text>
+<text x="654.5" y="356" text-anchor="middle" class="svg-tick">2000</text>
+<text x="792.7" y="356" text-anchor="middle" class="svg-tick">2010</text>
+<text x="931.0" y="356" text-anchor="middle" class="svg-tick">2020</text>
+<line x1="46" y1="334.0" x2="1014" y2="334.0" stroke="var(--artifact-border-dark)" stroke-width="1"/>
+<path d="M 46.0 275.3 C 55.2 266.4, 80.6 238.0, 101.3 222.0 C 122.1 206.0, 149.7 183.8, 170.5 179.3 C 191.2 174.9, 207.3 184.7, 225.8 195.3 C 244.2 206.0, 265.0 225.6, 281.1 243.3 C 297.2 261.1, 308.7 291.3, 322.6 302.0 C 336.4 312.7, 350.2 318.9, 364.1 307.3 C 377.9 295.8, 391.7 255.8, 405.5 232.7 C 419.4 209.6, 435.5 176.2, 447.0 168.7 C 458.6 161.1, 463.2 166.9, 474.7 187.3 C 486.2 207.8, 502.3 271.8, 516.2 291.3 C 530.0 310.9, 541.5 308.2, 557.7 304.7 C 573.8 301.1, 594.5 274.0, 613.0 270.0 C 631.4 266.0, 647.5 282.4, 668.3 280.7 C 689.0 278.9, 712.1 271.8, 737.4 259.3 C 762.8 246.9, 797.4 221.1, 820.4 206.0 C 843.4 190.9, 864.2 176.7, 875.7 168.7 C 887.2 160.7, 880.3 164.2, 889.5 158.0 C 898.8 151.8, 919.5 143.3, 931.0 131.3 C 942.6 119.3, 949.5 95.3, 958.7 86.0 C 967.9 76.7, 977.1 76.2, 986.3 75.3 C 995.6 74.4, 1009.4 79.8, 1014.0 80.7 L 1014.0 334.0 L 46.0 334.0 Z" fill="var(--artifact-selected)" opacity="0.9"/>
+<path d="M 46.0 275.3 C 55.2 266.4, 80.6 238.0, 101.3 222.0 C 122.1 206.0, 149.7 183.8, 170.5 179.3 C 191.2 174.9, 207.3 184.7, 225.8 195.3 C 244.2 206.0, 265.0 225.6, 281.1 243.3 C 297.2 261.1, 308.7 291.3, 322.6 302.0 C 336.4 312.7, 350.2 318.9, 364.1 307.3 C 377.9 295.8, 391.7 255.8, 405.5 232.7 C 419.4 209.6, 435.5 176.2, 447.0 168.7 C 458.6 161.1, 463.2 166.9, 474.7 187.3 C 486.2 207.8, 502.3 271.8, 516.2 291.3 C 530.0 310.9, 541.5 308.2, 557.7 304.7 C 573.8 301.1, 594.5 274.0, 613.0 270.0 C 631.4 266.0, 647.5 282.4, 668.3 280.7 C 689.0 278.9, 712.1 271.8, 737.4 259.3 C 762.8 246.9, 797.4 221.1, 820.4 206.0 C 843.4 190.9, 864.2 176.7, 875.7 168.7 C 887.2 160.7, 880.3 164.2, 889.5 158.0 C 898.8 151.8, 919.5 143.3, 931.0 131.3 C 942.6 119.3, 949.5 95.3, 958.7 86.0 C 967.9 76.7, 977.1 76.2, 986.3 75.3 C 995.6 74.4, 1009.4 79.8, 1014.0 80.7" fill="none" stroke="var(--artifact-primary-brand)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="46.0" cy="275.3" r="4.5" fill="var(--artifact-primary-brand)"/>
+<text x="42.0" y="261.3" text-anchor="start" class="svg-mlabel">DARTMOUTH</text>
+<circle cx="281.1" cy="243.3" r="4.5" fill="var(--artifact-primary-brand)"/>
+<text x="281.1" y="229.3" text-anchor="middle" class="svg-mlabel">LIGHTHILL</text>
+<circle cx="474.7" cy="187.3" r="4.5" fill="var(--artifact-primary-brand)"/>
+<text x="474.7" y="173.3" text-anchor="middle" class="svg-mlabel">LISP</text>
+<circle cx="820.4" cy="206.0" r="4.5" fill="var(--artifact-primary-brand)"/>
+<text x="820.4" y="192.0" text-anchor="middle" class="svg-mlabel">ALEXNET</text>
+<circle cx="889.5" cy="158.0" r="4.5" fill="var(--artifact-primary-brand)"/>
+<text x="889.5" y="144.0" text-anchor="middle" class="svg-mlabel">TRANSFORMER</text>
+<circle cx="958.7" cy="86.0" r="4.5" fill="var(--artifact-primary-brand)"/>
+<text x="962.7" y="72.0" text-anchor="end" class="svg-mlabel">CHATGPT</text>
+</svg>
+    <p class="chart-note mono">Faixas sombreadas: primeiro inverno (1974&ndash;1980) e segundo inverno (1987&ndash;1993). Curva ilustrativa.</p>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="timeline">
+  <div class="wrap">
+    <span class="eyebrow">A linha do tempo</span>
+    <h2 style="margin-top:14px; max-width:22ch;">De McCulloch a agentes</h2>
+
+    <div class="era">
+      <div class="era-head"><span class="span mono">1943 &mdash; 1956</span><span class="ttl">Fundacao</span><span class="tag">Era I</span></div>
+      <div class="items">
+        <div class="item"><div class="yr mono">1943</div><div class="bd"><h4>Neuronio artificial de McCulloch e Pitts</h4><p>Primeiro modelo matematico de um neuronio. A ideia de que raciocinio pode ser reduzido a operacoes logicas em uma rede.</p></div></div>
+        <div class="item"><div class="yr mono">1950</div><div class="bd"><h4>Turing publica &ldquo;Computing Machinery and Intelligence&rdquo;</h4><p>Propoe o jogo da imitacao &mdash; o Teste de Turing. A pergunta &ldquo;maquinas podem pensar?&rdquo; ganha um criterio operacional.</p></div></div>
+        <div class="item key"><div class="yr mono">1956</div><div class="bd"><h4>Conferencia de Dartmouth <span class="pill">marco zero</span></h4><p>John McCarthy cunha o termo <em>artificial intelligence</em>. McCarthy, Minsky, Shannon e Rochester reunem o grupo que fundaria o campo. Esta e a data de nascimento da IA.</p></div></div>
+      </div>
+    </div>
+
+    <div class="era">
+      <div class="era-head"><span class="span mono">1957 &mdash; 1973</span><span class="ttl">Otimismo simbolico</span><span class="tag">Era II</span></div>
+      <div class="items">
+        <div class="item"><div class="yr mono">1957</div><div class="bd"><h4>Perceptron, de Frank Rosenblatt</h4><p>Primeira rede neural treinavel. A imprensa da epoca ja anunciava maquinas que iriam ver, falar e se reproduzir &mdash; o primeiro ciclo de exagero.</p></div></div>
+        <div class="item"><div class="yr mono">1958</div><div class="bd"><h4>LISP</h4><p>McCarthy cria a linguagem que dominaria a pesquisa em IA por tres decadas &mdash; e cuja infraestrutura de hardware dedicado provocaria o segundo inverno.</p></div></div>
+        <div class="item"><div class="yr mono">1965</div><div class="bd"><h4>DENDRAL, primeiro sistema especialista</h4><p>Em Stanford, codifica conhecimento de quimica em regras. Nasce a abordagem que sustentaria o boom comercial dos anos 80.</p></div></div>
+        <div class="item"><div class="yr mono">1966</div><div class="bd"><h4>ELIZA e o relatorio ALPAC</h4><p>Weizenbaum mostra que um script simples produz ilusao de compreensao. No mesmo ano, o relatorio ALPAC condena a traducao automatica apos cerca de US$ 20 milhoes gastos &mdash; primeiro grande corte nos EUA.</p></div></div>
+        <div class="item"><div class="yr mono">1969</div><div class="bd"><h4>&ldquo;Perceptrons&rdquo;, de Minsky e Papert</h4><p>Demonstra que uma rede de camada unica nao resolve nem o problema do XOR. O efeito pratico: a pesquisa conexionista congela por quase quinze anos.</p></div></div>
+        <div class="item"><div class="yr mono">1970</div><div class="bd"><h4>Mansfield Amendment</h4><p>O Congresso americano restringe financiamento militar a pesquisa sem aplicacao direta. A verba flexivel da DARPA comeca a secar.</p></div></div>
+        <div class="item key"><div class="yr mono">1973</div><div class="bd"><h4>Relatorio Lighthill <span class="pill">gatilho</span></h4><p>Sir James Lighthill conclui, para o Science Research Council britanico, que a IA falhou em seus &ldquo;objetivos grandiosos&rdquo;. Seu argumento central e a <strong>explosao combinatoria</strong>: algoritmos que funcionam em problemas de brinquedo tornam-se inviaveis quando o numero de variaveis cresce.</p></div></div>
+      </div>
+    </div>
+
+    <div class="era winter">
+      <div class="era-head"><span class="span mono">1974 &mdash; 1980</span><span class="ttl">&#10052; Primeiro inverno da IA</span><span class="tag">Inverno</span></div>
+      <div class="items">
+        <div class="item"><div class="yr mono">1974</div><div class="bd"><h4>DARPA corta a pesquisa academica</h4><p>Cancela o contrato de US$ 3 milhoes anuais do programa Speech Understanding Research na Carnegie Mellon: a agencia esperava um sistema que obedecesse comandos de voz de pilotos e recebeu um que so funcionava se as palavras viessem em ordem especifica. A verba passa a ir para projetos com metas identificaveis, como veiculos autonomos e sistemas de gestao de batalha.</p></div></div>
+        <div class="item"><div class="yr mono">1974&ndash;80</div><div class="bd"><h4>Reino Unido desmonta seus laboratorios</h4><p>A pesquisa em IA sobrevive em apenas tres universidades: Edinburgh, Essex e Sussex. Pesquisadores abandonam o campo ou emigram. O termo &ldquo;inverno da IA&rdquo; faz referencia deliberada ao inverno nuclear.</p></div></div>
+        <div class="item"><div class="yr mono">1980</div><div class="bd"><h4>Degelo: XCON na Digital Equipment</h4><p>Um sistema especialista que configura pedidos de computadores gera economia reportada na casa de dezenas de milhoes de dolares por ano. O dinheiro corporativo volta.</p></div></div>
+      </div>
+    </div>
+
+    <div class="era">
+      <div class="era-head"><span class="span mono">1980 &mdash; 1987</span><span class="ttl">Boom dos sistemas especialistas</span><span class="tag">Era III</span></div>
+      <div class="items">
+        <div class="item"><div class="yr mono">1982</div><div class="bd"><h4>Japao lanca o Fifth Generation Project</h4><p>Programa nacional de computacao para inferencia logica em larga escala. Provoca reacao competitiva: o Reino Unido responde com o programa Alvey (1983) e um fundo de 350 milhoes de libras; os EUA, com a Strategic Computing Initiative.</p></div></div>
+        <div class="item"><div class="yr mono">1982</div><div class="bd"><h4>Redes de Hopfield</h4><p>John Hopfield mostra como redes recorrentes armazenam memoria associativa &mdash; trabalho que lhe daria o Nobel de Fisica 42 anos depois.</p></div></div>
+        <div class="item key"><div class="yr mono">1986</div><div class="bd"><h4>Backpropagation se difunde</h4><p>Rumelhart, Hinton e Williams popularizam o algoritmo que permite treinar redes com multiplas camadas. Tecnicamente resolve a objecao de 1969 &mdash; mas o hardware e os dados da epoca ainda nao permitem explorar isso.</p></div></div>
+      </div>
+    </div>
+
+    <div class="era winter">
+      <div class="era-head"><span class="span mono">1987 &mdash; 1993</span><span class="ttl">&#10052; Segundo inverno da IA</span><span class="tag">Inverno</span></div>
+      <div class="items">
+        <div class="item"><div class="yr mono">1987</div><div class="bd"><h4>Colapso do mercado de maquinas LISP</h4><p>Workstations de uso geral da Sun e da Apple passam a rodar o mesmo software por uma fracao do preco. O mercado de hardware dedicado a IA, que valia centenas de milhoes por ano, desaparece em meses e leva consigo as empresas de sistemas especialistas.</p></div></div>
+        <div class="item"><div class="yr mono">1987&ndash;88</div><div class="bd"><h4>DARPA corta &ldquo;profunda e brutalmente&rdquo;</h4><p>Jack Schwarz assume a lideranca do IPTO, classifica sistemas especialistas como &ldquo;programacao esperta&rdquo; e esvazia a Strategic Computing Initiative. Sua posicao: a DARPA deveria &ldquo;surfar&rdquo;, nao &ldquo;nadar de cachorrinho&rdquo; &mdash; e IA nao era a proxima onda.</p></div></div>
+        <div class="item"><div class="yr mono">1990&ndash;93</div><div class="bd"><h4>Abandono e rebranding</h4><p>Sistemas especialistas provam ser caros de manter (cada mudanca de conhecimento exigia ajuste manual de centenas de regras por engenheiros caros), incapazes de aprender e quebradicos fora do dominio. Empresas rebatizam seus projetos como &ldquo;sistemas de conhecimento&rdquo; e &ldquo;suporte a decisao&rdquo; para escapar do estigma da sigla IA.</p></div></div>
+      </div>
+    </div>
+
+    <div class="era">
+      <div class="era-head"><span class="span mono">1993 &mdash; 2011</span><span class="ttl">Virada estatistica</span><span class="tag">Era IV</span></div>
+      <div class="items">
+        <div class="item"><div class="yr mono">1995</div><div class="bd"><h4>Support Vector Machines</h4><p>Cortes e Vapnik consolidam a abordagem estatistica. O campo abandona a ambicao de inteligencia geral e passa a resolver problemas estreitos, com metricas verificaveis. Foi essa disciplina que reconstruiu a credibilidade.</p></div></div>
+        <div class="item"><div class="yr mono">1997</div><div class="bd"><h4>Deep Blue vence Kasparov &middot; LSTM</h4><p>A IBM ganha do campeao mundial de xadrez por forca bruta de busca, nao por aprendizado. No mesmo ano, Hochreiter e Schmidhuber publicam a LSTM, que resolve o problema de memoria longa em redes recorrentes.</p></div></div>
+        <div class="item"><div class="yr mono">1998</div><div class="bd"><h4>LeNet-5</h4><p>Yann LeCun aplica redes convolucionais ao reconhecimento de digitos em escala industrial nos bancos americanos. Deep learning funcionando em producao, dez anos antes do hype.</p></div></div>
+        <div class="item"><div class="yr mono">2006</div><div class="bd"><h4>Hinton e as deep belief networks</h4><p>O termo <em>deep learning</em> ganha tracao. Mostra-se possivel treinar redes profundas camada por camada.</p></div></div>
+        <div class="item"><div class="yr mono">2009</div><div class="bd"><h4>ImageNet</h4><p>Fei-Fei Li publica um dataset com milhoes de imagens rotuladas. O combustivel sem o qual a virada de 2012 nao teria acontecido.</p></div></div>
+        <div class="item"><div class="yr mono">2011</div><div class="bd"><h4>Watson vence o Jeopardy! &middot; Siri</h4><p>IA volta ao imaginario popular. Processamento de linguagem natural chega ao bolso do consumidor.</p></div></div>
+      </div>
+    </div>
+
+    <div class="era">
+      <div class="era-head"><span class="span mono">2012 &mdash; 2016</span><span class="ttl">Revolucao do deep learning</span><span class="tag">Era V</span></div>
+      <div class="items">
+        <div class="item key"><div class="yr mono">2012</div><div class="bd"><h4>AlexNet <span class="pill">virada</span></h4><p>Krizhevsky, Sutskever e Hinton ganham o ImageNet com erro top-5 de 15,3% contra 26,2% do segundo colocado &mdash; treinando em GPUs de consumo. A licao que definiu a decada seguinte: o gargalo nunca foi a ideia, foi <strong>compute + dados</strong>.</p></div></div>
+        <div class="item"><div class="yr mono">2014</div><div class="bd"><h4>GANs &middot; seq2seq &middot; mecanismo de atencao</h4><p>Goodfellow apresenta as redes adversarias &mdash; a primeira geracao de IA verdadeiramente generativa. Bahdanau introduz atencao em traducao automatica: a semente direta do Transformer.</p></div></div>
+        <div class="item"><div class="yr mono">2015</div><div class="bd"><h4>ResNet</h4><p>Conexoes residuais permitem redes de centenas de camadas. A visao computacional supera a acuracia humana no ImageNet.</p></div></div>
+        <div class="item"><div class="yr mono">2016</div><div class="bd"><h4>AlphaGo vence Lee Sedol</h4><p>Aprendizado por reforco resolve um jogo que se acreditava inacessivel por decadas. Momento cultural que precede o ChatGPT em seis anos.</p></div></div>
+      </div>
+    </div>
+
+    <div class="era">
+      <div class="era-head"><span class="span mono">2017 &mdash; 2021</span><span class="ttl">Transformer e escala</span><span class="tag">Era VI</span></div>
+      <div class="items">
+        <div class="item key"><div class="yr mono">2017</div><div class="bd"><h4>&ldquo;Attention Is All You Need&rdquo; &mdash; Vaswani et al. <span class="pill">arquitetura</span></h4><p>O Transformer elimina a recorrencia e deixa o treinamento inteiramente paralelizavel. Nao e um modelo: e a arquitetura que tornou economicamente viavel treinar em escala de internet. Todo LLM em uso hoje descende deste artigo de oito autores no Google.</p></div></div>
+        <div class="item"><div class="yr mono">2018</div><div class="bd"><h4>BERT e GPT-1</h4><p>Consolida-se o paradigma pre-treino + ajuste fino. O Google aplica BERT a busca; a OpenAI aposta no decoder generativo.</p></div></div>
+        <div class="item"><div class="yr mono">2019</div><div class="bd"><h4>GPT-2</h4><p>1,5 bilhao de parametros. A OpenAI adia a liberacao completa alegando risco de uso indevido &mdash; primeira vez que capacidade generativa e tratada publicamente como questao de seguranca.</p></div></div>
+        <div class="item"><div class="yr mono">2020</div><div class="bd"><h4>GPT-3 e as leis de escala &middot; AlphaFold 2</h4><p>175 bilhoes de parametros e a descoberta de que desempenho cresce de forma previsivel com dados, parametros e compute. A DeepMind resolve o dobramento de proteinas no CASP14 &mdash; a prova de que a tecnica gera ciencia, nao apenas texto.</p></div></div>
+        <div class="item"><div class="yr mono">2021</div><div class="bd"><h4>CLIP, DALL&middot;E e Copilot</h4><p>Multimodalidade e geracao de imagem viram produto. Modelos de difusao comecam a superar GANs. O codigo se torna o primeiro dominio profissional transformado em escala.</p></div></div>
+      </div>
+    </div>
+
+    <div class="era">
+      <div class="era-head"><span class="span mono">2022 &mdash; 2024</span><span class="ttl">Difusao da IA generativa</span><span class="tag">Era VII</span></div>
+      <div class="items">
+        <div class="item"><div class="yr mono">ago 2022</div><div class="bd"><h4>Stable Diffusion e Midjourney</h4><p>Geracao de imagem de alta qualidade se torna acessivel e, no caso do Stable Diffusion, de pesos abertos. O debate publico sobre autoria e direitos comeca aqui, nao com o texto.</p></div></div>
+        <div class="item key"><div class="yr mono">30 nov 2022</div><div class="bd"><h4>ChatGPT <span class="pill">difusao</span></h4><p>Nao foi uma ruptura tecnica &mdash; era o GPT-3.5 com ajuste por feedback humano (RLHF) em uma caixa de conversa. Foi uma ruptura de <strong>interface</strong>: cerca de 100 milhoes de usuarios em dois meses, a adocao mais rapida da historia de aplicativos de consumo. E o que a maioria das pessoas chama, incorretamente, de &ldquo;o surgimento da IA&rdquo;.</p></div></div>
+        <div class="item"><div class="yr mono">2023</div><div class="bd"><h4>GPT-4 multimodal &middot; LLaMA abre o ecossistema</h4><p>Capacidade de nivel profissional em multiplos dominios. Os pesos abertos da Meta criam um ecossistema paralelo e iniciam a corrida global por capacidade de GPU e datacenter.</p></div></div>
+        <div class="item"><div class="yr mono">2024</div><div class="bd"><h4>Nobel para redes neurais &middot; raciocinio em inferencia</h4><p>Hopfield e Hinton recebem o Nobel de Fisica; Hassabis e Jumper, o de Quimica pelo AlphaFold. A comunidade cientifica ratifica quarenta anos de trabalho. Surge uma nova alavanca: gastar compute no momento da resposta, nao apenas no treino.</p></div></div>
+      </div>
+    </div>
+
+    <div class="era">
+      <div class="era-head"><span class="span mono">2025 &mdash; hoje</span><span class="ttl">Raciocinio, agentes e economia de inferencia</span><span class="tag">Era VIII</span></div>
+      <div class="items">
+        <div class="item"><div class="yr mono">jan 2025</div><div class="bd"><h4>DeepSeek R1 desloca a fronteira de custo</h4><p>Um modelo de raciocinio de pesos abertos, treinado com orcamento muito menor que o das fronteiras ocidentais, mostra que capacidade nao e monopolio de quem tem mais capital.</p></div></div>
+        <div class="item"><div class="yr mono">2025&ndash;26</div><div class="bd"><h4>De chat para agente</h4><p>O padrao de uso deixa de ser pergunta-e-resposta e passa a ser execucao de tarefas em varias etapas, com uso de ferramentas e contexto de milhoes de tokens. A metrica de sucesso migra de benchmark para tarefa concluida.</p></div></div>
+        <div class="item"><div class="yr mono">2026</div><div class="bd"><h4>O gargalo volta a ser fisico</h4><p>Com modelos amplamente capazes, a conversa dominante deixa de ser arquitetura e passa a ser <strong>custo por token, energia, latencia e capacidade de datacenter</strong> &mdash; ou seja, infraestrutura. Assim como em 1987, a economia do hardware volta ao centro da questao, mas agora com receita real do outro lado.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="invernos">
+  <div class="wrap">
+    <span class="eyebrow">Por que os invernos ocorreram</span>
+    <h2 style="margin-top:14px; max-width:26ch;">O padrao se repetiu quase identico</h2>
+    <p style="color:var(--artifact-text-secondary); max-width:64ch; margin-top:20px;">Os dois invernos &mdash; 1974&ndash;1980 e 1987&ndash;1993 &mdash; nao foram causados por descoberta de que IA era impossivel. Foram causados pela distancia entre o que se prometeu e o que se entregou, em quatro mecanismos que se reforcam.<span class="info" tabindex="0">i<span class="tip">Sintese de quatro analises independentes publicadas entre 2025 e 2026 (Teachfloor, DataCamp, Open Digital AI, Forbes) mais a entrada de referencia da Wikipedia sobre AI winter, que convergem nas mesmas quatro causas estruturais. Fontes completas na secao final.</span></span></p>
+
+    <table>
+      <thead><tr><th>Mecanismo</th><th>O que aconteceu</th><th>Por que importou</th></tr></thead>
+      <tbody>
+        <tr><td>Promessa acima da capacidade</td><td>Nos anos 60 previa-se inteligencia de nivel humano em uma decada; nos anos 80, transformacao de toda a empresa. Hans Moravec descreveu o mecanismo: cada nova proposta a DARPA precisava prometer mais que a anterior, porque prometer menos era admitir fracasso.</td><td>Quando a lacuna entre discurso e resultado ficou inegavel, a credibilidade colapsou e o financiador saiu.</td></tr>
+        <tr><td>Dependencia de um unico paradigma</td><td>Todo o investimento concentrado em raciocinio simbolico nos anos 60 e em sistemas de regras nos anos 80.</td><td>Sem alternativa madura para pivotar, a falha de <em>uma abordagem</em> foi lida como falha da IA inteira.</td></tr>
+        <tr><td>Concentracao do financiamento</td><td>DARPA e conselhos de pesquisa britanicos respondiam por parcela desproporcional da verba mundial.</td><td>Quando dois ou tres financiadores recuaram, o ecossistema inteiro contraiu. Nao havia rede de seguranca.</td></tr>
+        <tr><td>Desalinhamento de expectativa</td><td>Os pesquisadores conheciam os limites do proprio trabalho; executivos, governos e imprensa nao.</td><td>Avancos reais mas modestos eram embalados como rupturas, criando decepcao inevitavel.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="quote">
+      <blockquote>&ldquo;Em nenhuma parte do campo as descobertas feitas ate agora produziram o impacto que entao se prometeu.&rdquo;</blockquote>
+      <div class="attr">Sir James Lighthill, relatorio ao Science Research Council, 1973</div>
+    </div>
+
+    <div class="focal">
+      <div class="focal-grid">
+        <div>
+          <div class="big">1974&ndash;80</div>
+          <div class="cap">Primeiro inverno. Gatilhos: relatorio ALPAC (1966), critica aos perceptrons (1969), fracasso do programa de reconhecimento de fala na CMU (1971&ndash;75), relatorio Lighthill (1973), cortes da DARPA (1973&ndash;74). Atingiu principalmente a <strong>academia</strong>.</div>
+        </div>
+        <div>
+          <div class="big">1987&ndash;93</div>
+          <div class="cap">Segundo inverno. Gatilhos: colapso do mercado de maquinas LISP (1987), fim dos novos gastos da Strategic Computing Initiative (1988), abandono dos sistemas especialistas e fracasso do Fifth Generation japones. Atingiu principalmente a <strong>industria</strong>.</div>
+        </div>
+      </div>
+    </div>
+
+    <p style="color:var(--artifact-text-secondary); max-width:66ch; margin-top:38px;">Vale registrar uma nota de rigor: alguns historiadores, como Thomas Haigh, argumentam que &ldquo;nao houve inverno&rdquo; no sentido literal &mdash; o numero de pesquisadores e o ritmo de publicacao continuaram crescendo nos anos 70. O que congelou foram os <strong>grandes laboratorios e os grandes projetos</strong>, alem da propria palavra &ldquo;IA&rdquo;, evitada por quase uma decada em propostas de financiamento.<span class="info" tabindex="0">i<span class="tip">Contraponto historiografico registrado na entrada de referencia sobre AI winter, atribuido ao historiador Thomas Haigh. Incluido para evitar simplificacao excessiva da narrativa de colapso total.</span></span></p>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="terceiro">
+  <div class="wrap">
+    <span class="eyebrow">A pergunta obvia</span>
+    <h2 style="margin-top:14px; max-width:24ch;">Estamos indo para um terceiro inverno?</h2>
+    <p style="color:var(--artifact-text-secondary); max-width:64ch; margin-top:20px;">O ciclo atual difere dos anteriores em um ponto decisivo &mdash; e se parece com eles em outro.<span class="info" tabindex="0">i<span class="tip">Analise comparativa construida a partir das quatro causas estruturais documentadas dos invernos anteriores, aplicadas ao ciclo atual. Interpretacao analitica, nao previsao. Base factual nas fontes listadas ao final.</span></span></p>
+    <div class="cmp">
+      <div class="col pos">
+        <h3>Por que este ciclo e diferente</h3>
+        <ul>
+          <li>Existe adocao real em massa e receita recorrente, nao apenas contratos de pesquisa. Nos anos 80, o cliente pagava por uma promessa; hoje paga por uso.</li>
+          <li>O financiamento e diversificado &mdash; capital privado, big tech, soberanias, capital de risco &mdash; e nao concentrado em duas agencias governamentais.</li>
+          <li>O paradigma atual <em>melhora com escala</em>. Sistemas especialistas pioravam com o tamanho, porque cada regra nova exigia trabalho manual.</li>
+          <li>Ha valor entregue mesmo se a capacidade parar de crescer hoje: traducao, codigo, atendimento, busca e sintese ja pagam por si.</li>
+        </ul>
+      </div>
+      <div class="col neg">
+        <h3>Onde os riscos rimam com 1973</h3>
+        <ul>
+          <li>Concentracao em um unico paradigma outra vez: praticamente tudo depende do Transformer e da hipotese de que escala continua compensando.</li>
+          <li>A narrativa de AGI iminente reproduz o padrao de promessa acima da capacidade que derrubou as duas ondas anteriores.</li>
+          <li>A &ldquo;explosao combinatoria&rdquo; de Lighthill tem um equivalente economico hoje: o custo marginal de cada ganho de capacidade cresce mais rapido que o ganho.</li>
+          <li>Investimento pesado em capex de datacenter e GPU precisa de retorno mensuravel. Foi exatamente a economia do hardware dedicado que quebrou em 1987.</li>
+        </ul>
+      </div>
+    </div>
+    <p style="color:var(--artifact-text-secondary); max-width:66ch; margin-top:34px;">A licao util dos dois invernos nao e pessimismo &mdash; e calibragem. Os dois terminaram quando uma nova abordagem entregou o que a anterior nao conseguia, e as duas retomadas vieram de quem manteve rigor tecnico enquanto a palavra &ldquo;IA&rdquo; estava desmoralizada. Quem falou de &ldquo;sistemas de conhecimento&rdquo; em 1991 construiu o machine learning estatistico que sustentou tudo o que veio depois.</p>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="fontes">
+  <div class="wrap src">
+    <span class="eyebrow">Fontes e metodo</span>
+    <h2 style="margin-top:14px; font-size:1.5rem; max-width:34ch;">O que esta pagina mostra e de onde vem</h2>
+    <p style="margin-top:18px; max-width:70ch;">Esta e uma sintese historica que cobre 1943&ndash;2026. As datas de publicacoes tecnicas e de lancamentos de modelos vem das publicacoes originais e da documentacao dos laboratorios. A analise dos invernos, das causas estruturais e dos numeros de corte de financiamento vem das referencias abaixo, consultadas em agosto de 2026 e convergentes entre si. A curva da secao &ldquo;Ciclos de hype&rdquo; e esquematica: representa a direcao da atencao e do financiamento ao longo do tempo, nao uma serie quantitativa. A secao sobre um possivel terceiro inverno e interpretacao analitica, nao previsao.</p>
+    <ol>
+      <li><a href="https://en.wikipedia.org/wiki/AI_winter">AI winter &mdash; entrada de referencia</a>: cronologia dos gatilhos, cortes da DARPA, caso SUR na CMU, colapso das maquinas LISP, cortes da Strategic Computing Initiative, contraponto de Thomas Haigh.</li>
+      <li><a href="https://www.datacamp.com/blog/ai-winter">AI Winter: Understanding the Cycles of AI Development</a> (DataCamp): impacto do relatorio Lighthill, colapso do mercado Symbolics/LMI, comparacao entre os dois invernos.</li>
+      <li><a href="https://www.teachfloor.com/blog/ai-winter">AI Winter: What It Was and Why It Happened</a> (Teachfloor): as quatro causas estruturais e o rebranding corporativo dos anos 90.</li>
+      <li><a href="https://opendigitalai.org/en/ai-winters-why-did-the-enthusiasm-collapse-twice/">AI Winters: Why Did the Enthusiasm Collapse Twice?</a> (Open Digital AI): relatorio ALPAC, datacao dos dois periodos.</li>
+      <li><a href="https://www.forbes.com/sites/paulocarvao/2025/08/24/are-we-heading-into-another-ai-winter/">From AI Winters to Generative AI: Can This Boom Last?</a> (Forbes): explosao combinatoria e paralelos com o ciclo atual.</li>
+      <li><a href="https://www.holloway.com/g/making-things-think/sections/the-first-ai-winter-19741980">The First AI Winter (1974&ndash;1980)</a> (Holloway): Mansfield Amendment, valores do ALPAC e do contrato cancelado na CMU.</li>
+    </ol>
+  </div>
+</section>
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var secs = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function onScroll(){
+    var y = window.scrollY + 140, idx = 0;
+    secs.forEach(function(s, i){ if (s && s.offsetTop <= y) idx = i; });
+    links.forEach(function(a, i){ a.classList.toggle('active', i === idx); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+
+<script>
+  window.GleanBridge.postMessage({
+    actionId: 'export-pdf',
+    type: 'glean-add-menu',
+    metadata: { label: 'Export as PDF', icon: 'export' }
+  });
+  window.GleanBridge.onMessage('action', function(data) {
+    if (data.actionId === 'export-pdf') window.print();
+  });
+
+</script>
+</body>
+</html>
