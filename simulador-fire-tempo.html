@@ -72,7 +72,9 @@
   <div class="eyebrow">Modelo de ponte · dimensão tempo</div>
   <h1>Quando cada fase fica financiada</h1>
   <p class="lede">O portfólio cresce mês a mês (retorno + aportes) e cruza os alvos derivados do gap
-    que a Vanessa não cobre. Três cenários de retorno; o marco fixo de mai/2032 é o step-down da faculdade.</p>
+    que a Vanessa não cobre. Em ~mai/2032 acontecem duas coisas juntas: a faculdade do Kael termina
+    e a mudança para Asunção reduz o custo de vida — por isso a Fase 2 exige muito menos que a Fase 1.
+    Três cenários de retorno; o marco de mai/2032 é fixo.</p>
 
   <!-- HERO -->
   <div class="panel hero">
@@ -95,13 +97,14 @@
       </div>
     </div>
     <div class="note" id="hero-note"></div>
+    <div class="note" id="van-note" style="margin-top:8px"></div>
   </div>
 
   <!-- TARGETS -->
   <div class="panel tstrip">
     <div class="t"><div class="lab">Alvo Fase 1 · com o Kael (mai/2032)</div>
       <div class="v" style="color:var(--amber)" id="t1">—</div><div class="u" id="t1u"></div></div>
-    <div class="t"><div class="lab">Alvo Fase 2 · step-down (pós-2032)</div>
+    <div class="t"><div class="lab">Alvo Fase 2 · Asunção (pós-2032)</div>
       <div class="v" style="color:var(--blue)" id="t2">—</div><div class="u" id="t2u"></div></div>
     <div class="t"><div class="lab">Retirada efetiva / crescimento líquido</div>
       <div class="v" id="tnet">—</div><div class="u" id="tnetu"></div></div>
@@ -112,15 +115,15 @@
     <div class="panel controls">
       <div class="ctitle">VARIÁVEIS</div>
       <div class="srow"><div class="top"><span>Patrimônio hoje</span><span id="v-cur"></span></div>
-        <input type="range" id="cur" min="1000000" max="7000000" step="50000" value="2820000" style="accent-color:var(--blue)"></div>
+        <input type="range" id="cur" min="1000000" max="7000000" step="50000" value="2900000" style="accent-color:var(--blue)"></div>
       <div class="srow"><div class="top"><span>Aporte mensal</span><span id="v-ap"></span></div>
         <input type="range" id="ap" min="0" max="40000" step="1000" value="18000" style="accent-color:var(--emerald)"></div>
       <div class="srow"><div class="top"><span>Cobertura da Vanessa</span><span id="v-va"></span></div>
-        <input type="range" id="va" min="10000" max="30000" step="500" value="20000" style="accent-color:var(--emerald)"></div>
-      <div class="srow"><div class="top"><span>Gasto com a faculdade</span><span id="v-sf"></span></div>
-        <input type="range" id="sf" min="20000" max="60000" step="1000" value="40000" style="accent-color:var(--amber)"></div>
-      <div class="srow"><div class="top"><span>Gasto sem a faculdade</span><span id="v-ss"></span></div>
-        <input type="range" id="ss" min="15000" max="50000" step="1000" value="30000" style="accent-color:var(--blue)"></div>
+        <input type="range" id="va" min="10000" max="30000" step="500" value="25000" style="accent-color:var(--emerald)"></div>
+      <div class="srow"><div class="top"><span>Gasto Fase 1 · São Paulo + faculdade</span><span id="v-sf"></span></div>
+        <input type="range" id="sf" min="20000" max="60000" step="1000" value="38000" style="accent-color:var(--amber)"></div>
+      <div class="srow"><div class="top"><span>Gasto Fase 2 · Asunção, pós-faculdade</span><span id="v-ss"></span></div>
+        <input type="range" id="ss" min="10000" max="50000" step="1000" value="28000" style="accent-color:var(--blue)"></div>
       <div class="srow"><div class="top"><span>SWR</span><span id="v-swr"></span></div>
         <input type="range" id="swr" min="3" max="6" step="0.25" value="5" style="accent-color:var(--amber)"></div>
       <div class="srow"><div class="top"><span>Câmbio USD/BRL</span><span id="v-fx"></span></div>
@@ -231,6 +234,13 @@ function render(){
     ? 'Mesmo no pior cenário, independência no mais tardar em '+fmtDate(dateAt(latest))
       +' — porque a Fase 2 (R$'+ (t2/1e6).toFixed(1) +'M) já está coberta e o gap da faculdade termina em mai/2032.'
     : 'Ajuste os aportes ou a cobertura: nenhum cenário atinge o alvo no horizonte.';
+
+  // Vanessa também para: portfólio banca o custo integral de Asunção (renda dela = 0)
+  const vanTarget = ss*12/(swr/100);
+  const vanDate = pts=>{const i=crossIdx(pts,vanTarget);return i===null?'após 2037':fmtDate(dateAt(i));};
+  $('van-note').innerHTML='<span style="color:var(--emerald);font-weight:600">Vanessa também para:</span> '
+    +'portfólio banca os '+brl(ss)+'/mês integrais de Asunção (alvo '+milBRL(vanTarget)+') — '
+    +'stress <b>'+vanDate(pS)+'</b> · base <b>'+vanDate(pB)+'</b> · upside <b>'+vanDate(pU)+'</b>.';
 
   // chart
   refT1=t1; refT2=t2;                                   // targets lidos pelo plugin a cada draw
